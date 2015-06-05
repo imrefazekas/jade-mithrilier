@@ -1,0 +1,7 @@
+.DS_Store
+*.log
+*.zip
+node_modules/
+doc/
+storage/
+web/build

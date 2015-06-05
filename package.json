@@ -1,0 +1,24 @@
+{
+  "name": "jade-mithrilier",
+  "version": "0.2.0",
+  "mod-project-name": "jade-mithrilier",
+  "description": "jade-mithrilier",
+  "keywords": [],
+  "private": true,
+  "author": {
+    "name": "Imre Fazekas",
+    "email": "imre.fazekas@icloud.com"
+  },
+  "main": "lib/Main.js",
+  "dependencies": {
+    "jade": "~1",
+    "js-beautify": "~1",
+    "uglify-js": "~2"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "engines": {
+    "node": "0.12.2"
+  },
+  "_id": "jade-mithrilier@0.2.0"
+}
