@@ -1,4 +1,4 @@
-JADE_MITHRILIER - A customizable Jade compiler into Mithril view JS definition
+JADE-MITHRILIER - A customizable Jade compiler into Mithril view JS definition
 
 [![NPM](https://nodei.co/npm/jade-mithrilier.png)](https://nodei.co/npm/jade-mithrilier/)
 
