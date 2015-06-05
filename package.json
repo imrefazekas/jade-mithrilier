@@ -3,8 +3,7 @@
   "version": "0.2.0",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
-  "keywords": [],
-  "private": true,
+  "keywords": ["jade", "compiler", "mithril", "view"],
   "author": {
     "name": "Imre Fazekas",
     "email": "imre.fazekas@icloud.com"
