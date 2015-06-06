@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": ["jade", "compiler", "mithril", "view"],
@@ -17,7 +17,7 @@
   "devDependencies": {},
   "scripts": {},
   "engines": {
-    "node": "0.12.2"
+    "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.2.3"
+  "_id": "jade-mithrilier@0.2.4"
 }
