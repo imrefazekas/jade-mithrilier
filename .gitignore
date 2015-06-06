@@ -4,4 +4,4 @@
 node_modules/
 doc/
 storage/
-web/build
+web
