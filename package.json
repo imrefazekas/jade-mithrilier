@@ -1,9 +1,14 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
-  "keywords": ["jade", "compiler", "mithril", "view"],
+  "keywords": [
+    "jade",
+    "compiler",
+    "mithril",
+    "view"
+  ],
   "author": {
     "name": "Imre Fazekas",
     "email": "imre.fazekas@icloud.com"
@@ -12,6 +17,7 @@
   "dependencies": {
     "jade": "~1",
     "js-beautify": "~1",
+    "lodash": "~3",
     "uglify-js": "~2"
   },
   "devDependencies": {},
@@ -19,5 +25,5 @@
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.2.5"
+  "_id": "jade-mithrilier@0.2.6"
 }
