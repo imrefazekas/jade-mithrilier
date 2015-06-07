@@ -1,27 +1,10 @@
-.column-1-th
+.section
 	text.h6 Sign up
 	br
-	br
-	.section-content
-		input.c_ds_blue.hN.text-center(type="text", name="join_name", id="join_name", placeholder="Your name", data-bind="name")
-		br
-		br
-		input.c_ds_blue.hN.text-center(type="text", name="join_email", id="join_email", placeholder="Your email address", data-bind="email")
-		br
-		br
-		input.c_ds_blue.hN.text-center(type="text", name="join_password", id="join_password", placeholder="Your password", data-bind="password")
-
-	.column-1-th.margin-vertical-huge
-		text.h6 Your invite code
-		br
-		br
-		.section-content
-			input.c_ds_blue.hN.text-center(type="text", name="invitation_code", id="invitation_code", placeholder="invitation code", data-bind="inviteCode")
-
-	.column-1-th
-		label.checkbox
-			input(type="checkbox", name="check_terms", data-bind="termsAccepted").checkbox
-			span.checkbox.warper-check.c_red
-		text I agree to
-		a( href="/terms.html", target="_blank" )
-			text "Be Warper" terms.
+	input.c_ds_blue.hN.text-center(type="text", id="join_name", placeholder="Your name", data-bind="name")
+	input.c_ds_blue.hN.text-center(type="text", id="join_email", placeholder="Your email address", data-bind="email")
+	input(type="checkbox", data-bind="termsAccepted").checkbox
+	.section(data-each="addresses")
+		.row
+			input.c_ds_blue.hN.text-center(type="text", placeholder="Your city", data-bind="city")
+			input.c_ds_blue.hN.text-center(type="text", placeholder="Your street", data-bind="street")
