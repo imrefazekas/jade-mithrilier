@@ -1,0 +1,183 @@
+{
+	"nodes": [
+		{
+			"attributeNames": [
+				"id",
+				"class",
+				"data-each"
+			],
+			"attrs": [
+				{
+					"name": "id",
+					"val": "'popup'"
+				},
+				{
+					"name": "class",
+					"val": "'popup'"
+				},
+				{
+					"name": "data-each",
+					"val": "\"addresses\"",
+					"escaped": true
+				}
+			],
+			"attributeBlocks": [],
+			"name": "div",
+			"block": {
+				"nodes": [
+					{
+						"attributeNames": [
+							"id",
+							"class",
+							"class",
+							"class",
+							"class",
+							"type",
+							"name",
+							"placeholder",
+							"data-bind"
+						],
+						"attrs": [
+							{
+								"name": "id",
+								"val": "'name'"
+							},
+							{
+								"name": "class",
+								"val": "'absolute-center'"
+							},
+							{
+								"name": "class",
+								"val": "'c_ds_blue'"
+							},
+							{
+								"name": "class",
+								"val": "'hN'"
+							},
+							{
+								"name": "class",
+								"val": "'text-center'"
+							},
+							{
+								"name": "type",
+								"val": "\"text\"",
+								"escaped": true
+							},
+							{
+								"name": "name",
+								"val": "\"name\"",
+								"escaped": true
+							},
+							{
+								"name": "placeholder",
+								"val": "\"Your name\"",
+								"escaped": true
+							},
+							{
+								"name": "data-bind",
+								"val": "\"name\"",
+								"escaped": true
+							}
+						],
+						"attributeBlocks": [],
+						"name": "input",
+						"block": {
+							"nodes": []
+						},
+						"selfClosing": false,
+						"line": 2
+					},
+					{
+						"attributeNames": [
+							"id",
+							"class",
+							"class",
+							"class",
+							"class",
+							"type",
+							"name",
+							"placeholder",
+							"data-bind"
+						],
+						"attrs": [
+							{
+								"name": "id",
+								"val": "'email'"
+							},
+							{
+								"name": "class",
+								"val": "'absolute-center'"
+							},
+							{
+								"name": "class",
+								"val": "'c_ds_blue'"
+							},
+							{
+								"name": "class",
+								"val": "'hN'"
+							},
+							{
+								"name": "class",
+								"val": "'text-center'"
+							},
+							{
+								"name": "type",
+								"val": "\"text\"",
+								"escaped": true
+							},
+							{
+								"name": "name",
+								"val": "\"email\"",
+								"escaped": true
+							},
+							{
+								"name": "placeholder",
+								"val": "\"Your email address\"",
+								"escaped": true
+							},
+							{
+								"name": "data-bind",
+								"val": "\"email\"",
+								"escaped": true
+							}
+						],
+						"attributeBlocks": [],
+						"name": "input",
+						"block": {
+							"nodes": []
+						},
+						"selfClosing": false,
+						"line": 3
+					},
+					{
+						"attributeNames": [
+							"type",
+							"data-bind"
+						],
+						"attrs": [
+							{
+								"name": "type",
+								"val": "\"checkbox\"",
+								"escaped": true
+							},
+							{
+								"name": "data-bind",
+								"val": "\"terms\"",
+								"escaped": true
+							}
+						],
+						"attributeBlocks": [],
+						"name": "input",
+						"block": {
+							"nodes": []
+						},
+						"selfClosing": false,
+						"line": 4
+					}
+				]
+			},
+			"line": 1
+		}
+	],
+	"line": 0
+}
