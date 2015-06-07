@@ -9,6 +9,14 @@
     "mithril",
     "view"
   ],
+  "homepage": "https://github.com/imrefazekas/jade-mithrilier",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/imrefazekas/jade-mithrilier.git"
+  },
+  "bugs": {
+    "url": "http://github.com/imrefazekas/jade-mithrilier/issues"
+  },
   "author": {
     "name": "Imre Fazekas",
     "email": "imre.fazekas@icloud.com"
