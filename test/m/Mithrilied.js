@@ -255,3 +255,4 @@ module.exports = {
 		m.mount(element, m.component(Component, model.dataModel));
 	}
 };
+

@@ -8,11 +8,8 @@ var mithrilier = require('../lib/Main');
 gulp.task('mithril', function( cb ){
 	var folder = './m/';
 
-	var jsTemplate = fs.readFileSync( folder + 'Mithril.template', { encoding: 'utf8' });
-	var jsParts = jsTemplate.split('$$$$');
-
 	var jadeContent = fs.readFileSync( folder + 'content.jade', { encoding: 'utf8' });
-	var mithrilView = mithrilier( jadeContent, { pretty: true, context: true, prefix: jsParts[0], postfix: jsParts[1], indent_size: 1, indent_char: '\t' } );
+	var mithrilView = mithrilier.generateMithrilJS( jadeContent );
 	fs.writeFileSync( folder + 'Mithrilied.js', mithrilView + '\n', { encoding: 'utf8' } );
 
 	cb();
