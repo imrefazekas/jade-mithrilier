@@ -9,6 +9,9 @@ module.exports = {
 				street: 'Vrndavana',
 				active: true
 			}
-		]
+		],
+		template: function(){
+			return '<text> AbrakaDabra </text>';
+		}
 	}
 };

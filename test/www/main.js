@@ -73,23 +73,45 @@
 	var Vanilla = __webpack_require__(4);
 	var MithrilMapper = __webpack_require__(5);
 
-	function valuateVisibility(element, model, path, milieu) {
-		if (!milieu['data-visible']) return;
-		var f = new Function('$root', '$item', '$index', 'return ' + milieu['data-visible'] + ';');
+	function valuateContent(element, model, path, milieu, key) {
+		if (!milieu[key]) return null;
+		var f = new Function('$root', '$item', '$index', 'return ' + milieu[key] + ';');
 		try {
-			var visible = f(model, milieu.item || model, milieu.index);
-			element.style.visibility = visible ? 'visible' : 'hidden';
+			return {
+				value: f(model, milieu.item || model, milieu.index)
+			};
 		} catch (err) {
-			err.message = 'While evaluating: ' + milieu['data-attr'] + ' ' + err.message;
+			err.message = 'While evaluating: ' + milieu[key] + ' ' + err.message;
 			console.error(err);
+		}
+		return null;
+	}
+
+	function valuateVisibility(element, model, path, milieu) {
+		var res = valuateContent(element, model, path, milieu, 'data-visible');
+		if (res) {
+			element.style.visibility = res.value ? 'visible' : 'hidden';
 		}
 	}
 
-	function valuateCSS(element, model, path, milieu) {
-		if (!milieu['data-style']) return;
-		var f = new Function('$root', '$item', '$index', 'return ' + milieu['data-style']);
-		try {
-			var styles = f(model, milieu.item || model, milieu.index);
+	function valuateHTML(element, model, path, milieu) {
+		var res = valuateContent(element, model, path, milieu, 'data-html');
+		if (res) {
+			while (element.firstChild)
+				element.removeChild(element.firstChild);
+			try {
+				element.insertAdjacentHTML('afterbegin', res.value);
+			} catch (err) {
+				err.message = 'While parsing html text: ' + res.value + ' ' + err.message;
+				console.error(err);
+			}
+		}
+	}
+
+	function valuateStyle(element, model, path, milieu) {
+		var res = valuateContent(element, model, path, milieu, 'data-style');
+		if (res) {
+			var styles = res.value;
 			for (var key in styles) {
 				if (key) {
 					if (styles[key])
@@ -98,17 +120,13 @@
 						delete element.style[key];
 				}
 			}
-		} catch (err) {
-			err.message = 'While evaluating: ' + milieu['data-style'] + ' ' + err.message;
-			console.error(err);
 		}
 	}
 
 	function valuateAttribute(element, model, path, milieu) {
-		if (!milieu['data-attr']) return;
-		var f = new Function('$root', '$item', '$index', 'return ' + milieu['data-attr']);
-		try {
-			var attributes = f(model, milieu.item || model, milieu.index);
+		var res = valuateContent(element, model, path, milieu, 'data-attr');
+		if (res) {
+			var attributes = res.value;
 			for (var key in attributes) {
 				if (key) {
 					if (key === 'class')
@@ -117,9 +135,6 @@
 						element[key] = attributes[key];
 				}
 			}
-		} catch (err) {
-			err.message = 'While evaluating: ' + milieu['data-attr'] + ' ' + err.message;
-			console.error(err);
 		}
 	}
 
@@ -127,7 +142,8 @@
 		return function(element, isInit, context) {
 			valuateVisibility(element, model, path, milieu);
 			valuateAttribute(element, model, path, milieu);
-			valuateCSS(element, model, path, milieu);
+			valuateStyle(element, model, path, milieu);
+			valuateHTML(element, model, path, milieu);
 		};
 	}
 
@@ -289,7 +305,18 @@
 							}),
 							"data-style": "{ color: ($item.active() ? 'green' : 'red') }",
 							"className": ""
-						}, ["Colored"])])];
+						}, ["Colored"]), m("br", {
+							"className": ""
+						}, []), m("div", {
+							config: createConfig(ctrl[name], 'addresses', {
+								item: item,
+								index: index,
+								'data-html': "$root.template()",
+								V: ctrl._validation
+							}),
+							"data-html": "$root.template()",
+							"className": ""
+						}, [])])];
 					}))]);
 				}
 
@@ -13852,7 +13879,10 @@
 					street: 'Vrndavana',
 					active: true
 				}
-			]
+			],
+			template: function(){
+				return '<text> AbrakaDabra </text>';
+			}
 		}
 	};
 
