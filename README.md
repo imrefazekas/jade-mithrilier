@@ -121,7 +121,7 @@ gulp.task('webpack', function( callback ) {
 gulp.task( 'default', [ 'mithril', 'webpack' ] );
 ```
 
-#### The generated [Mithril](https://lhorie.github.io/mithril/) component which __you never wanted to write and especiall maintain__ by yourself:
+#### The generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself:
 ```javascript
 var m = require('mithril');
 
