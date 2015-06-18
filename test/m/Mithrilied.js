@@ -15,13 +15,38 @@ function valuateVisibility(element, model, path, milieu) {
 	}
 }
 
+function valuateCSS(element, model, path, milieu) {
+	if (!milieu['data-style']) return;
+	var f = new Function('$root', '$item', '$index', 'return ' + milieu['data-style']);
+	try {
+		var styles = f(model, milieu.item || model, milieu.index);
+		for (var key in styles) {
+			if (key) {
+				if (styles[key])
+					element.style[key] = styles[key];
+				else
+					delete element.style[key];
+			}
+		}
+	} catch (err) {
+		err.message = 'While evaluating: ' + milieu['data-style'] + ' ' + err.message;
+		console.error(err);
+	}
+}
+
 function valuateAttribute(element, model, path, milieu) {
 	if (!milieu['data-attr']) return;
 	var f = new Function('$root', '$item', '$index', 'return ' + milieu['data-attr']);
 	try {
 		var attributes = f(model, milieu.item || model, milieu.index);
-		for (var key in attributes)
-			element[key] = attributes[key];
+		for (var key in attributes) {
+			if (key) {
+				if (key === 'class')
+					Vanilla.addClass(element, attributes[key]);
+				else
+					element[key] = attributes[key];
+			}
+		}
 	} catch (err) {
 		err.message = 'While evaluating: ' + milieu['data-attr'] + ' ' + err.message;
 		console.error(err);
@@ -32,6 +57,7 @@ function createConfig(model, path, milieu) {
 	return function(element, isInit, context) {
 		valuateVisibility(element, model, path, milieu);
 		valuateAttribute(element, model, path, milieu);
+		valuateCSS(element, model, path, milieu);
 	};
 }
 
@@ -182,7 +208,18 @@ module.exports = {
 						}),
 						"data-attr": "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
 						"className": ""
-					}, ["Gyümölcsös"])])];
+					}, ["Gyümölcsös"]), m("br", {
+						"className": ""
+					}, []), m("text", {
+						config: createConfig(ctrl[name], 'addresses', {
+							item: item,
+							index: index,
+							'data-style': "{ color: ($item.active() ? 'green' : 'red') }",
+							V: ctrl._validation
+						}),
+						"data-style": "{ color: ($item.active() ? 'green' : 'red') }",
+						"className": ""
+					}, ["Colored"])])];
 				}))]);
 			}
 
