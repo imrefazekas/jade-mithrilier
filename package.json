@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.2.16",
+  "version": "0.2.20",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": [
@@ -28,10 +28,14 @@
     "lodash": "~3",
     "uglify-js": "~2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "gulp": "~3",
+    "gulp-util": "latest",
+    "webpack": "~1"
+  },
   "scripts": {},
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.2.16"
+  "_id": "jade-mithrilier@0.2.20"
 }

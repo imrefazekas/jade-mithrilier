@@ -1,0 +1,47 @@
+var m = require('mithril');
+
+var Vanilla = require('./Vanilla');
+var MithrilMapper = require('./MithrilMapper');
+
+function valuateVisibility( element, model, path, milieu ){
+	if( !milieu['data-visible'] ) return;
+	var f = new Function( '$root', '$item', '$index', 'return '+ milieu['data-visible'] + ';' );
+	try{
+		var visible = f( model, milieu.item || model, milieu.index );
+		element.style.visibility = visible ? 'visible' : 'hidden';
+	} catch( err ){
+		err.message = 'While evaluating: ' + milieu['data-attr'] + ' ' + err.message;
+		console.error( err );
+	}
+}
+function valuateAttribute( element, model, path, milieu ){
+	if( !milieu['data-attr'] ) return;
+	var f = new Function( '$root', '$item', '$index', 'return '+ milieu['data-attr'] );
+	try{
+		var attributes = f( model, milieu.item || model, milieu.index );
+		for( var key in attributes )
+			element[ key ] = attributes[ key ];
+	} catch( err ){
+		err.message = 'While evaluating: ' + milieu['data-attr'] + ' ' + err.message;
+		console.error( err );
+	}
+}
+
+function createConfig( model, path, milieu ){
+	return function(element, isInit, context){
+		valuateVisibility( element, model, path, milieu );
+		valuateAttribute( element, model, path, milieu );
+	};
+}
+
+module.exports = {
+	mount: function( model, context, name, element ){
+		var Controller = MithrilMapper.mapObject( name, model.validation );
+		var Component = {
+			controller: Controller,
+			view: $$$$
+		};
+
+		m.mount( element, m.component(Component, model.dataModel) );
+	}
+};
