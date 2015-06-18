@@ -33,7 +33,7 @@ fs.writeFileSync( [path], mithrilView, { encoding: 'utf8' } );
 
 ## The example project
 
-###### Person data model:
+#### Person data model:
 ```javascript
 module.exports = {
 	dataModel: {
@@ -54,7 +54,7 @@ module.exports = {
 };
 ```
 
-###### The view in JADE (example to all kind of bindings supported):
+#### The view in JADE (example to all kind of bindings supported):
 ```jade
 .section
 	text.h6 Sign up
@@ -88,7 +88,7 @@ module.exports = {
 			div(data-html="$root.template()")
 ```
 
-###### The Gulp build task:
+#### The Gulp build task:
 ```javascript
 var fs = require('fs');
 var gulp = require('gulp'),
@@ -121,7 +121,7 @@ gulp.task('webpack', function( callback ) {
 gulp.task( 'default', [ 'mithril', 'webpack' ] );
 ```
 
-###### The generated [Mithril](https://lhorie.github.io/mithril/) component which __you never wanted to write and especiall maintain__ by yourself:
+#### The generated [Mithril](https://lhorie.github.io/mithril/) component which __you never wanted to write and especiall maintain__ by yourself:
 ```javascript
 var m = require('mithril');
 
@@ -382,7 +382,7 @@ module.exports = {
 };
 ```
 
-###### HTML code:
+#### HTML code:
 
 ```html
 <!DOCTYPE html>
