@@ -1,0 +1,101 @@
+var m = require('mithril');
+
+var Vanilla = require('./Vanilla');
+var mapObject = require('jade-mithrilier').mapObject();
+
+var v = require('vindication.js');
+
+function valuateContent( element, model, path, milieu, key ){
+	if( !milieu[ key ] ) return null;
+	var f = new Function( '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
+	try{
+		return { value: f( model, milieu.item || model, milieu.index ) };
+	} catch( err ){
+		err.message = 'While evaluating: ' + milieu[ key ] + ' ' + err.message;
+		console.error( err );
+	}
+	return null;
+}
+function valuateVisibility( element, model, path, milieu ){
+	var res = valuateContent( element, model, path, milieu, 'data-visible' );
+	if( res ){
+		element.style.visibility = res.value ? 'visible' : 'hidden';
+	}
+}
+function valuateHTML( element, model, path, milieu ){
+	var res = valuateContent( element, model, path, milieu, 'data-html' );
+	if( res ){
+		while (element.firstChild)
+			element.removeChild( element.firstChild );
+		try{
+			element.insertAdjacentHTML('afterbegin', res.value);
+		} catch( err ){
+			err.message = 'While parsing html text: ' + res.value + ' ' + err.message;
+			console.error( err );
+		}
+	}
+}
+function valuateStyle( element, model, path, milieu ){
+	var res = valuateContent( element, model, path, milieu, 'data-style' );
+	if( res ){
+		var styles = res.value;
+		for( var key in styles ){
+			if( key ){
+				if( styles[ key ] )
+					element.style[ key ] = styles[ key ];
+				else
+					delete element.style[ key ];
+			}
+		}
+	}
+}
+function valuateAttribute( element, model, path, milieu ){
+	var res = valuateContent( element, model, path, milieu, 'data-attr' );
+	if( res ){
+		var attributes = res.value;
+		for( var key in attributes ){
+			if( key ){
+				if( key === 'class' )
+					Vanilla.addClass( element, attributes[ key ] );
+				else
+					element[ key ] = attributes[ key ];
+			}
+		}
+	}
+}
+function validation( model, path, V ){
+	var qualifiers = path.split('.');
+	var value = model, contraint = V;
+	for( var i=0; i<qualifiers.length && value[ qualifiers[i] ] && contraint[ qualifiers[i] ]; ++i ){
+		value = value[ qualifiers[i] ]; contraint = contraint[ qualifiers[i] ];
+	}
+	return !value || !contraint || v.validate( value(), contraint );
+}
+function createConfig( model, path, milieu ){
+	return function(element, isInit, context){
+		valuateVisibility( element, model, path, milieu );
+		valuateAttribute( element, model, path, milieu );
+		valuateStyle( element, model, path, milieu );
+		valuateHTML( element, model, path, milieu );
+		if( isInit && milieu.clearElement && milieu.invalidElement && milieu.validElement ){
+			var inValid = validation( model, path, milieu.V );
+			milieu.clearElement( element );
+			if( inValid )
+				milieu.invalidElement( element, inValid );
+			else
+				milieu.validElement( element );
+		}
+	};
+}
+
+module.exports = {
+	mount: function( model, context, name, element ){
+		var Controller = mapObject( name, model.validation );
+		var Component = {
+			controller: Controller,
+			view: $$$$
+		};
+
+		m.mount( element, m.component(Component, model.dataModel) );
+	}
+};
