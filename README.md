@@ -206,13 +206,19 @@ Below, you can find the generated [Mithril](https://lhorie.github.io/mithril/) c
 ```javascript
 var m = require('mithril');
 
-var Vanilla = require('./Vanilla');
 var mapObject = require('jade-mithrilier').mapObject();
 
 var _ = require('lodash');
 
 var v = require('vindication.js');
 
+function addClass( el, className ){
+	if (el.classList)
+		el.classList.add(className);
+	else
+		el.className += ' ' + className;
+	return this;
+}
 function valuateContent(element, model, path, milieu, key) {
 	if (!milieu[key]) return null;
 	var f = new Function('$root', '$item', '$index', 'return ' + milieu[key] + ';');
@@ -270,7 +276,7 @@ function valuateAttribute(element, model, path, milieu) {
 		for (var key in attributes) {
 			if (key) {
 				if (key === 'class')
-					Vanilla.addClass(element, attributes[key]);
+					addClass(element, attributes[key]);
 				else
 					element[key] = attributes[key];
 			}
