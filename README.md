@@ -42,7 +42,7 @@ fs.writeFileSync( [path], mithrilView, { encoding: 'utf8' } );
 
 ## The example project
 
-The following code which source can be found in folder _'test'_,  demonstrates how to build up a very simple page including real-time validation. Validation is valuated real-time and some callback functions defined by you are called to make the necessary changes in style or execute some JS functions.
+The following code which source can be found in folder _'demo-project'_,  demonstrates how to build up a very simple page including real-time validation. Validation is valuated real-time and some callback functions defined by you are called to make the necessary changes in style or execute some JS functions.
 
 #### Person data model with validation:
 ```javascript

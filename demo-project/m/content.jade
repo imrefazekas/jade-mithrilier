@@ -1,0 +1,30 @@
+.section
+	text.h6 Sign up
+	br
+	input.c_ds_blue.hN.text-center(type="text", id="join_name", placeholder="Your name", data-bind="name")
+	br
+	input.c_ds_blue.hN.text-center(type="text", id="join_email", placeholder="Your email address", data-bind="email")
+	br
+	text Accept?
+	input(type="checkbox", data-bind="terms").checkbox
+	br
+	text(data-visible="$item.terms()") Accept check
+	br
+	br
+	text(data-value="name") Addresses:
+	br
+	.row-section(data-each="addresses")
+		.row
+			input.c_ds_blue.hN.text-center(type="text", placeholder="Your city", data-bind="city")
+			br
+			input.c_ds_blue.hN.text-center(type="text", placeholder="Your street", data-bind="street")
+			br
+			input(type="checkbox", data-bind="active").checkbox
+			br
+			text(data-visible="$item.active()") Visibility check
+			br
+			text(data-attr="{ id: ($item.active() ? 'kortefa' : 'almafa') }") Gyümölcsös
+			br
+			text(data-style="{ color: ($item.active() ? 'green' : 'red') }") Colored
+			br
+			div(data-html="$root.template()")
