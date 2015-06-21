@@ -8,7 +8,13 @@ JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhor
 [![Join the chat at https://gitter.im/imrefazekas/jade-mithrilier](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/imrefazekas/jade-mithrilier?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library to allow you to harmonize better your MVC strategy with server-side models and rendering processes by using [JADE](http://jade-lang.com) as template engine and plain JS object as data models. [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your SPAs.
+[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library to allow you to better harmonise your MVC strategy with server-side models and rendering processes by using
+
+- [JADE](http://jade-lang.com) as template engine
+- plain JS object as data models
+- and optionally plain JS object as validation rules via [vindication.js](https://github.com/imrefazekas/vindication.js/tree/master)
+
+[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your SPAs.
 
 # Installation
 
@@ -16,10 +22,11 @@ JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhor
 
 ## Concept
 
-To have a real full-stack solution, common coding style and module formats have to be introduced, data models used by server-side and clien-side must be shared. The simplest way is to use plain and pure JS object as a CommonJS module requirable by any code you write.
-In EE-world, applications are not created in a vacuum, teams are working on it and design and code are evolving continuously urging the development team to handle representation freely. In other words, you should be encouraged to choose the template engine and the orchestration structure of yours fitting the best your project.
+To have a real full-stack solution, common coding style and module formats have to be introduced, data models and validation rules used by server-side and clien-side must be shared.
+The simplest way is to use plain and pure JS object as a CommonJS module requirable by any code you write.
+In EE-world, applications are not created in a vacuum, teams are working on it and design and code are evolving continuously urging the development team to handle representation freely. In other words, you should be encouraged to choose the template engine and the orchestration structure of yours, fitting the best your project.
 
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a solution providing [JADE](http://jade-lang.com) template engine and markup-based mapping and CommonJS object as Models at your service.
+[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a solution providing [JADE](http://jade-lang.com) template engine and markup-based mapping and CommonJS object as Models and validation at your service.
 
 
 ## Quick install
@@ -35,7 +42,9 @@ fs.writeFileSync( [path], mithrilView, { encoding: 'utf8' } );
 
 ## The example project
 
-#### Person data model:
+The following code which source can be found in folder _'test'_,  demonstrates how to build up a very simple page including real-time validation. Validation is valuated real-time and some callback functions defined by you are called to make the necessary changes in style or execute some JS functions.
+
+#### Person data model with validation:
 ```javascript
 module.exports = {
 	dataModel: {
@@ -52,6 +61,10 @@ module.exports = {
 		template: function(){
 			return '<text> AbrakaDabra </text>';
 		}
+	},
+	validation: {
+		name: { minlength: 6, element: ["John Doe"] },
+		email: { type: 'email' }
 	}
 };
 ```
@@ -123,12 +136,82 @@ gulp.task('webpack', function( callback ) {
 gulp.task( 'default', [ 'mithril', 'webpack' ] );
 ```
 
-#### The generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself:
+#### HTML code:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="description" content="simple person model?">
+	<meta charset="utf-8">
+	<style>
+		.row-section {
+			margin-left: 1rem;
+		}
+		.row:not(:first-child) {
+			margin-top: 2rem;
+		}
+	</style>
+</head>
+
+<body>
+	<div data-mount="Person"></div>
+
+	<script src="main.js"></script>
+</body>
+
+</html>
+```
+
+#### Main.js
+
+```javascript
+var mitrilied = require('./m/Mithrilied');
+
+var modelName = 'Person';
+var Model = require('./m/Person');
+var Vanilla = require('./m/Vanilla');
+var elements = document.querySelectorAll('[data-mount=\"' + modelName + '\"]');
+
+var self = {};
+if( elements.length === 1 ){
+	self.clearElement = function( element ){
+		Vanilla.removeClass(element, 'validation-error');
+		Vanilla.removeClass(element, 'validation-success');
+	};
+	self.invalidElement = function( element, errors ){
+		Vanilla.addClass(element, 'validation-error');
+	};
+	self.validElement = function( element ){
+		Vanilla.addClass(element, 'validation-success');
+	};
+
+	var ViewModel = mitrilied.mount( Model, self, modelName, elements[0] );
+	self.Person.controller.cleanAddresses();
+	self.Person.controller.addToAddresses();
+	self.Person.controller.addToAddresses();
+	self[ 'get' + modelName] = function(){
+		return self[ modelName ].controller.toJS();
+	};
+}
+```
+
+Done. It is that simple.
+Below, you can find the generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself. ;)
+
+
+#### The generated [Mithril](https://lhorie.github.io/mithril/) component
+
 ```javascript
 var m = require('mithril');
 
 var Vanilla = require('./Vanilla');
-var MithrilMapper = require('./MithrilMapper');
+var mapObject = require('jade-mithrilier').mapObject();
+
+var _ = require('lodash');
+
+var v = require('vindication.js');
 
 function valuateContent(element, model, path, milieu, key) {
 	if (!milieu[key]) return null;
@@ -193,6 +276,17 @@ function valuateAttribute(element, model, path, milieu) {
 			}
 		}
 	}
+}
+
+function validation(model, path, V) {
+	var qualifiers = path.split('.');
+	var value = model,
+		contraint = V;
+	for (var i = 0; i < qualifiers.length && value[qualifiers[i]] && contraint[qualifiers[i]]; ++i) {
+		value = value[qualifiers[i]];
+		contraint = contraint[qualifiers[i]];
+	}
+	return !value || !_.isFunction(value) || !contraint || v.validate(value(), contraint);
 }
 
 function createConfig(model, path, milieu) {
@@ -383,36 +477,6 @@ module.exports = {
 	}
 };
 ```
-
-#### HTML code:
-
-```html
-<!DOCTYPE html>
-<html>
-
-<head>
-	<meta name="description" content="simple person model?">
-	<meta charset="utf-8">
-	<style>
-		.row-section {
-			margin-left: 1rem;
-		}
-		.row:not(:first-child) {
-			margin-top: 2rem;
-		}
-	</style>
-</head>
-
-<body>
-	<div data-mount="Person"></div>
-
-	<script src="main.js"></script>
-</body>
-
-</html>
-```
-
-Done. It is that simple.
 
 
 ## Binding markup
