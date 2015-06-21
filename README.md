@@ -5,6 +5,8 @@ JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhor
 
 ========
 
+[![Join the chat at https://gitter.im/imrefazekas/jade-mithrilier](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/imrefazekas/jade-mithrilier?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library to allow you to harmonize better your MVC strategy with server-side models and rendering processes by using [JADE](http://jade-lang.com) as template engine and plain JS object as data models. [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your SPAs.
 
