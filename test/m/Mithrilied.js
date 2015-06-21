@@ -3,6 +3,8 @@ var m = require('mithril');
 var Vanilla = require('./Vanilla');
 var MithrilMapper = require('./MithrilMapper');
 
+var v = require('vindication.js');
+
 function valuateContent(element, model, path, milieu, key) {
 	if (!milieu[key]) return null;
 	var f = new Function('$root', '$item', '$index', 'return ' + milieu[key] + ';');
@@ -68,12 +70,31 @@ function valuateAttribute(element, model, path, milieu) {
 	}
 }
 
+function validation(model, path, V) {
+	var qualifiers = path.split('.');
+	var value = model,
+		contraint = V;
+	for (var i = 0; i < qualifiers.length && value[qualifiers[i]] && contraint[qualifiers[i]]; ++i) {
+		value = value[qualifiers[i]];
+		contraint = contraint[qualifiers[i]];
+	}
+	return !value || !contraint || v.validate(value(), contraint);
+}
+
 function createConfig(model, path, milieu) {
 	return function(element, isInit, context) {
 		valuateVisibility(element, model, path, milieu);
 		valuateAttribute(element, model, path, milieu);
 		valuateStyle(element, model, path, milieu);
 		valuateHTML(element, model, path, milieu);
+		if (isInit && milieu.clearElement && milieu.invalidElement && milieu.validElement) {
+			var inValid = validation(model, path, milieu.V);
+			milieu.clearElement(element);
+			if (inValid)
+				milieu.invalidElement(element, inValid);
+			else
+				milieu.validElement(element);
+		}
 	};
 }
 
@@ -97,7 +118,10 @@ module.exports = {
 					value: ctrl[name].name(),
 					oninput: m.withAttr('value', ctrl[name].name),
 					config: createConfig(ctrl[name], 'name', {
-						V: ctrl._validation
+						V: ctrl._validation,
+						clearElement: context.clearElement,
+						invalidElement: context.invalidElement,
+						validElement: context.validElement
 					}),
 					"type": "text",
 					"id": "join_name",
@@ -110,7 +134,10 @@ module.exports = {
 					value: ctrl[name].email(),
 					oninput: m.withAttr('value', ctrl[name].email),
 					config: createConfig(ctrl[name], 'email', {
-						V: ctrl._validation
+						V: ctrl._validation,
+						clearElement: context.clearElement,
+						invalidElement: context.invalidElement,
+						validElement: context.validElement
 					}),
 					"type": "text",
 					"id": "join_email",
@@ -126,7 +153,10 @@ module.exports = {
 					onclick: m.withAttr('checked', ctrl[name].terms),
 					checked: ctrl[name].terms(),
 					config: createConfig(ctrl[name], 'terms', {
-						V: ctrl._validation
+						V: ctrl._validation,
+						clearElement: context.clearElement,
+						invalidElement: context.invalidElement,
+						validElement: context.validElement
 					}),
 					"type": "checkbox",
 					"data-bind": "terms",
@@ -136,7 +166,10 @@ module.exports = {
 				}, []), m("text", {
 					config: createConfig(ctrl[name], '', {
 						'data-visible': "$item.terms()",
-						V: ctrl._validation
+						V: ctrl._validation,
+						clearElement: context.clearElement,
+						invalidElement: context.invalidElement,
+						validElement: context.validElement
 					}),
 					"data-visible": "$item.terms()",
 					"className": ""
@@ -147,7 +180,10 @@ module.exports = {
 				}, []), m("text", {
 					textContent: ctrl[name].name(),
 					config: createConfig(ctrl[name], 'null', {
-						V: ctrl._validation
+						V: ctrl._validation,
+						clearElement: context.clearElement,
+						invalidElement: context.invalidElement,
+						validElement: context.validElement
 					}),
 					"data-value": "name",
 					"className": ""
@@ -155,7 +191,10 @@ module.exports = {
 					"className": ""
 				}, []), m("div", {
 					config: createConfig(ctrl[name], 'addresses', {
-						V: ctrl._validation
+						V: ctrl._validation,
+						clearElement: context.clearElement,
+						invalidElement: context.invalidElement,
+						validElement: context.validElement
 					}),
 					"data-each": "addresses",
 					"className": "row-section"
@@ -168,7 +207,10 @@ module.exports = {
 						config: createConfig(ctrl[name], 'addresses.city', {
 							item: item,
 							index: index,
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"type": "text",
 						"placeholder": "Your city",
@@ -182,7 +224,10 @@ module.exports = {
 						config: createConfig(ctrl[name], 'addresses.street', {
 							item: item,
 							index: index,
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"type": "text",
 						"placeholder": "Your street",
@@ -197,7 +242,10 @@ module.exports = {
 						config: createConfig(ctrl[name], 'addresses.active', {
 							item: item,
 							index: index,
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"type": "checkbox",
 						"data-bind": "active",
@@ -209,7 +257,10 @@ module.exports = {
 							item: item,
 							index: index,
 							'data-visible': "$item.active()",
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"data-visible": "$item.active()",
 						"className": ""
@@ -220,7 +271,10 @@ module.exports = {
 							item: item,
 							index: index,
 							'data-attr': "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"data-attr": "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
 						"className": ""
@@ -231,7 +285,10 @@ module.exports = {
 							item: item,
 							index: index,
 							'data-style': "{ color: ($item.active() ? 'green' : 'red') }",
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"data-style": "{ color: ($item.active() ? 'green' : 'red') }",
 						"className": ""
@@ -242,7 +299,10 @@ module.exports = {
 							item: item,
 							index: index,
 							'data-html': "$root.template()",
-							V: ctrl._validation
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
 						}),
 						"data-html": "$root.template()",
 						"className": ""

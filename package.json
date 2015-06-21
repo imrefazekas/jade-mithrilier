@@ -26,7 +26,8 @@
     "jade": "~1",
     "js-beautify": "~1",
     "lodash": "~3",
-    "uglify-js": "~2"
+    "uglify-js": "~2",
+    "vindication.js": "^3.0.2"
   },
   "devDependencies": {
     "gulp": "~3",

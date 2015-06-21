@@ -13,5 +13,9 @@ module.exports = {
 		template: function(){
 			return '<text> AbrakaDabra </text>';
 		}
+	},
+	validation: {
+		name: { minlength: 6, element: ["John Doe"] },
+		email: { type: 'email' }
 	}
 };
