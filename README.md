@@ -86,6 +86,8 @@ module.exports = {
 	br
 	text(data-value="name") Addresses:
 	br
+	select(data-each="emails", data-event-change="emailSelected")
+		option(data-value="$item", data-attr="{ value: $item() }")
 	.row-section(data-each="addresses")
 		.row
 			input.c_ds_blue.hN.text-center(type="text", placeholder="Your city", data-bind="city")
@@ -186,6 +188,9 @@ if( elements.length === 1 ){
 	self.validElement = function( element ){
 		Vanilla.addClass(element, 'validation-success');
 	};
+	self.emailSelected = function(){
+		console.log('?????', arguments);
+	}
 
 	var ViewModel = mitrilied.mount( Model, self, modelName, elements[0] );
 	self.Person.controller.cleanAddresses();
@@ -198,6 +203,8 @@ if( elements.length === 1 ){
 ```
 
 Done. It is that simple.
+A Model and a view definition and some markup to connect them.
+
 Below, you can find the generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself. ;)
 
 

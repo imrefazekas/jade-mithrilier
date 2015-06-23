@@ -14,6 +14,17 @@ function addClass( el, className ){
 	return this;
 }
 
+function valuateEventBinders( context, element, model, path, milieu ){
+	for( var key in milieu ){
+		if (key && key.indexOf('data-event-') === 0 ) {
+			var eventName = key.substring( 'data-event-'.length );
+			var fnName = milieu[ key ];
+			if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
+				throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
+			element.addEventListener( eventName, context[ fnName ] );
+		}
+	}
+}
 function valuateContent( element, model, path, milieu, key ){
 	if( !milieu[ key ] ) return null;
 	var f = new Function( '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
@@ -80,12 +91,13 @@ function validation( model, path, V ){
 	}
 	return (!value || !_.isFunction(value) || !contraint) ? null : v.validate(value(), contraint);
 }
-function createConfig( model, path, milieu ){
+function createConfig( appContext, model, path, milieu ){
 	return function(element, isInit, context){
 		valuateVisibility( element, model, path, milieu );
 		valuateAttribute( element, model, path, milieu );
 		valuateStyle( element, model, path, milieu );
 		valuateHTML( element, model, path, milieu );
+		valuateEventBinders( appContext, element, model, path, milieu );
 		if( isInit && milieu.clearElement && milieu.invalidElement && milieu.validElement ){
 			var inValid = validation( model, path, milieu.V );
 			milieu.clearElement( element );
