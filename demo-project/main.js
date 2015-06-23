@@ -18,10 +18,17 @@ if( elements.length === 1 ){
 		Vanilla.addClass(element, 'validation-success');
 	};
 
+	self.emailSelected = function(){
+		console.log('?????', arguments);
+	}
+
 	var ViewModel = mitrilied.mount( Model, self, modelName, elements[0] );
 	self.Person.controller.cleanAddresses();
 	self.Person.controller.addToAddresses();
-	self.Person.controller.addToAddresses();
+	self.Person.controller.addToAddresses( { city: 'Vicity', street: 'Valahol' } );
+	self.Person.controller.addToEmails( 'imre@be.hu' );
+	self.Person.controller.addToEmails( 'peter@be.fr' );
+	self.Person.controller.addToEmails( 'steve@be.uk' );
 	self[ 'get' + modelName] = function(){
 		return self[ modelName ].controller.toJS();
 	};

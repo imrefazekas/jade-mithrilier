@@ -3,6 +3,7 @@ module.exports = {
 		name: 'John Doe',
 		email: 'a@b.hu',
 		terms: true,
+		emails: [ 'test@be.org' ],
 		addresses: [
 			{
 				city: 'Debrecen',
