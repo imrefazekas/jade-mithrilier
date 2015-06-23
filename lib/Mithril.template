@@ -78,7 +78,7 @@ function validation( model, path, V ){
 	for( var i=0; i<qualifiers.length && value[ qualifiers[i] ] && contraint[ qualifiers[i] ]; ++i ){
 		value = value[ qualifiers[i] ]; contraint = contraint[ qualifiers[i] ];
 	}
-	return !value || !_.isFunction(value) || !contraint || v.validate(value(), contraint);
+	return (!value || !_.isFunction(value) || !contraint) ? null : v.validate(value(), contraint);
 }
 function createConfig( model, path, milieu ){
 	return function(element, isInit, context){
