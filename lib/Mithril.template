@@ -21,7 +21,11 @@ function valuateEventBinders( context, element, model, path, milieu ){
 			var fnName = milieu[ key ];
 			if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
 				throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
-			element.addEventListener( eventName, context[ fnName ] );
+			element.addEventListener(eventName, function(){
+				m.startComputation();
+				context[ fnName ].apply( context, arguments );
+				m.endComputation();
+			} );
 		}
 	}
 }
