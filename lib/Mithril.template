@@ -83,13 +83,13 @@ function valuateAttribute( element, model, path, milieu ){
 		}
 	}
 }
-function validation( model, path, V ){
+function readValidationRule( model, path, V ){
 	var qualifiers = path.split('.');
 	var value = model, contraint = V;
 	for( var i=0; i<qualifiers.length && value[ qualifiers[i] ] && contraint[ qualifiers[i] ]; ++i ){
 		value = value[ qualifiers[i] ]; contraint = contraint[ qualifiers[i] ];
 	}
-	return (!value || !_.isFunction(value) || !contraint) ? null : v.validate(value(), contraint);
+	return { value: value, contraint: contraint };
 }
 function createConfig( appContext, model, path, milieu ){
 	return function(element, isInit, context){
@@ -99,12 +99,15 @@ function createConfig( appContext, model, path, milieu ){
 		valuateHTML( element, model, path, milieu );
 		valuateEventBinders( appContext, element, model, path, milieu );
 		if( isInit && milieu.clearElement && milieu.invalidElement && milieu.validElement ){
-			var inValid = validation( model, path, milieu.V );
-			milieu.clearElement( element );
-			if( inValid )
-				milieu.invalidElement( element, inValid );
-			else
-				milieu.validElement( element );
+			var vRule = readValidationRule( model, path, milieu.V );
+			if( vRule.value && _.isFunction(vRule.value) && vRule.contraint ){
+				var inValid = v.validate( vRule.value(), vRule.contraint );
+				milieu.clearElement( element );
+				if( inValid )
+					milieu.invalidElement( element, inValid );
+				else
+					milieu.validElement( element );
+			}
 		}
 	};
 }
