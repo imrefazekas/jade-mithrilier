@@ -46,6 +46,12 @@ function valuateVisibility( element, model, path, milieu ){
 		element.style.visibility = res.value ? 'visible' : 'hidden';
 	}
 }
+function valuateDisplay( element, model, path, milieu ){
+	var res = valuateContent( element, model, path, milieu, 'data-display' );
+	if( res ){
+		element.style.display = res.value ? 'inline' : 'none';
+	}
+}
 function valuateHTML( element, model, path, milieu ){
 	var res = valuateContent( element, model, path, milieu, 'data-html' );
 	if( res ){
@@ -98,6 +104,7 @@ function readValidationRule( model, path, V ){
 function createConfig( appContext, model, path, milieu ){
 	return function(element, isInit, context){
 		valuateVisibility( element, model, path, milieu );
+		valuateDisplay( element, model, path, milieu );
 		valuateAttribute( element, model, path, milieu );
 		valuateStyle( element, model, path, milieu );
 		valuateHTML( element, model, path, milieu );
