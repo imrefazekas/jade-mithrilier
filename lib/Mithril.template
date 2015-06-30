@@ -131,7 +131,7 @@ module.exports = {
 			view: $$$$
 		};
 
-		if( context && context[ 'init' + name + 'Model' ] )
+		if( context && context['init' + name + 'Model'] )
 			context[ 'init' + name + 'Model' ]( model.dataModel );
 		m.mount( element, m.component(Component, model.dataModel) );
 	}
