@@ -131,8 +131,8 @@ module.exports = {
 			view: $$$$
 		};
 
-		if( context && context['init' + name + 'Model'] )
-			context[ 'init' + name + 'Model' ]( model.dataModel );
+		if( context && context.emit )
+			context.emit( 'init' + name + 'Model', model.dataModel );
 		m.mount( element, m.component(Component, model.dataModel) );
 	}
 };
