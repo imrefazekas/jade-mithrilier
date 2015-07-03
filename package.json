@@ -21,6 +21,7 @@
     "name": "Imre Fazekas",
     "email": "imre.fazekas@icloud.com"
   },
+  "license": "MIT",
   "main": "lib/Main.js",
   "dependencies": {
     "jade": "~1",
