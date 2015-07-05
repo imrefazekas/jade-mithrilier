@@ -126,6 +126,8 @@ function createConfig( appContext, model, path, milieu ){
 module.exports = {
 	mount: function( model, context, viewName, modelName, element ){
 		var Controller = mapObject( modelName, model.validation );
+		var firstRun = true;
+
 		var Component = {
 			controller: Controller,
 			view: $$$$

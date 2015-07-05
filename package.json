@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.6.2",
+  "version": "0.6.5",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": [
@@ -39,5 +39,5 @@
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.6.2"
+  "_id": "jade-mithrilier@0.6.5"
 }
