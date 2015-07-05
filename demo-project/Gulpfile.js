@@ -8,9 +8,9 @@ var mithrilier = require('jade-mithrilier');
 gulp.task('mithril', function( cb ){
 	var folder = './m/';
 
-	var jadeContent = fs.readFileSync( folder + 'content.jade', { encoding: 'utf8' });
+	var jadeContent = fs.readFileSync( folder + 'Content.jade', { encoding: 'utf8' });
 	var mithrilView = mithrilier.generateMithrilJS( jadeContent );
-	fs.writeFileSync( folder + 'Mithrilied.js', mithrilView + '\n', { encoding: 'utf8' } );
+	fs.writeFileSync( folder + 'Content.js', mithrilView.trim() + '\n', { encoding: 'utf8' } );
 
 	cb();
 });

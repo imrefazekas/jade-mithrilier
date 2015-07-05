@@ -124,15 +124,17 @@ function createConfig( appContext, model, path, milieu ){
 }
 
 module.exports = {
-	mount: function( model, context, name, element ){
-		var Controller = mapObject( name, model.validation );
+	mount: function( model, context, viewName, modelName, element ){
+		var Controller = mapObject( modelName, model.validation );
 		var Component = {
 			controller: Controller,
 			view: $$$$
 		};
 
 		if( context && context.emit )
-			context.emit( 'init' + name + 'Model', model.dataModel );
+			context.emit( 'init' + viewName + 'ViewModel', model.dataModel );
+
+		//m.mount( element, { controller: controller, view: Component.view} );
 		m.mount( element, m.component(Component, model.dataModel) );
 	}
 };

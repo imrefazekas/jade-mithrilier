@@ -15,6 +15,7 @@ JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhor
 - and optionally plain JS object as validation rules via [vindication.js](https://github.com/imrefazekas/vindication.js/tree/master)
 
 [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your SPAs.
+To support the "multi-island scenario", you can assiciate multiple views to the same model or mount the same templates to different DOM parent as your needs encourage you to orchestrate.
 
 # Installation
 
@@ -28,6 +29,8 @@ In EE-world, applications are not created in a vacuum, teams are working on it a
 
 [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a solution providing [JADE](http://jade-lang.com) template engine and markup-based mapping and CommonJS object as Models and validation at your service.
 
+For a complete demo about features and services, see the folder [demo-project](https://github.com/imrefazekas/jade-mithrilier/tree/master/demo-project). It uses [Webpack](http://webpack.github.io). CommonJS and require on the client side, yes.
+
 
 ## Quick install
 
@@ -40,11 +43,14 @@ fs.writeFileSync( [path], mithrilView, { encoding: 'utf8' } );
 ...
 ```
 
-## The example project
+Note: To convert Jade to [Mithril](https://lhorie.github.io/mithril/) JS view code, a build-time process should be defined.
 
-The following code which source can be found in folder _'demo-project'_,  demonstrates how to build up a very simple page including real-time validation. Validation is valuated real-time and some callback functions defined by you are called to make the necessary changes in style or execute some JS functions.
 
-#### Person data model with validation:
+## A simple example project
+
+This is a reduced version of the example located in folder [demo-project](https://github.com/imrefazekas/jade-mithrilier/tree/master/demo-project),  demonstrating how to build up a very simple page
+
+#### Person.js data model with validation:
 ```javascript
 module.exports = {
 	dataModel: {
@@ -61,15 +67,11 @@ module.exports = {
 		template: function(){
 			return '<text> AbrakaDabra </text>';
 		}
-	},
-	validation: {
-		name: { minlength: 6, element: ["John Doe"] },
-		email: { type: 'email' }
 	}
 };
 ```
 
-#### The view in JADE (example to all kind of bindings supported):
+#### The Person.jade view in JADE (example to all kind of bindings supported):
 ```jade
 .section
 	text.h6 Sign up
@@ -105,6 +107,14 @@ module.exports = {
 			div(data-html="$root.template()")
 ```
 
+You can see here
+
+- 2-way binding (_data-bind_)
+- 1-way binding (_data-value_)
+- event listeners
+- manupulations around attributes (_data-attr_), css (_data-style_) and visibility (_data-visible_)
+- html injections (_data-html_)
+
 #### The Gulp build task:
 ```javascript
 var fs = require('fs');
@@ -117,9 +127,9 @@ var mithrilier = require('jade-mithrilier');
 gulp.task('mithril', function( cb ){
 	var folder = './m/';
 
-	var jadeContent = fs.readFileSync( folder + 'content.jade', { encoding: 'utf8' });
+	var jadeContent = fs.readFileSync( folder + 'Person.jade', { encoding: 'utf8' });
 	var mithrilView = mithrilier.generateMithrilJS( jadeContent );
-	fs.writeFileSync( folder + 'Mithrilied.js', mithrilView + '\n', { encoding: 'utf8' } );
+	fs.writeFileSync( folder + 'Person.js', mithrilView + '\n', { encoding: 'utf8' } );
 
 	cb();
 });
@@ -137,6 +147,8 @@ gulp.task('webpack', function( callback ) {
 });
 gulp.task( 'default', [ 'mithril', 'webpack' ] );
 ```
+
+Note: Of course, having multiple JADE files would require to have a "filelist reading - generating" modification in the task above...
 
 #### HTML code:
 
@@ -169,334 +181,64 @@ gulp.task( 'default', [ 'mithril', 'webpack' ] );
 #### Main.js
 
 ```javascript
-var mitrilied = require('./m/Mithrilied');
+var Vanilla = require('./Vanilla');
+var m = require('mithril');
 
-var modelName = 'Person';
-var Model = require('./m/Person');
-var Vanilla = require('./m/Vanilla');
-var elements = document.querySelectorAll('[data-mount=\"' + modelName + '\"]');
+// The JS context of the example
+function ViewModel(){ }
+var viewModel = ViewModel.prototype;
+viewModel.emailSelected = function(){
+	console.log('?????', arguments);
+};
+var self = new ViewModel();
 
-var self = {};
-if( elements.length === 1 ){
-	self.clearElement = function( element ){
-		Vanilla.removeClass(element, 'validation-error');
-		Vanilla.removeClass(element, 'validation-success');
-	};
-	self.invalidElement = function( element, errors ){
-		Vanilla.addClass(element, 'validation-error');
-	};
-	self.validElement = function( element ){
-		Vanilla.addClass(element, 'validation-success');
-	};
-	self.emailSelected = function(){
-		console.log('?????', arguments);
+// To load Datamodel files
+function createModelContext( context, modelName ){
+	if( !context[ modelName ] ){
+		context[ modelName ] = {
+			model: require( './models/' + modelName ),
+			vcs: []
+		};
 	}
-
-	var ViewModel = mitrilied.mount( Model, self, modelName, elements[0] );
-	self.Person.controller.cleanAddresses();
-	self.Person.controller.addToAddresses();
-	self.Person.controller.addToAddresses();
-	self[ 'get' + modelName] = function(){
-		return self[ modelName ].controller.toJS();
-	};
 }
+
+// to read all Mithril view JS files converted from JADE templates.
+var context = require.context( './m/', true, /.(js)$/);
+context.keys().forEach( function(key){
+	var modelLoader = context(key);
+	var viewName = key.match(/\w+/)[0];
+	var mounters = document.querySelectorAll('[data-mount=\"' + viewName + '\"]');
+	Array.prototype.forEach.call(mounters, function(element, i){
+		var modelName = element.getAttribute('data-model') || viewName;
+
+		createModelContext( self, modelName );
+
+		modelLoader.mount( self[ modelName ].model, self, viewName, modelName, element );
+	} );
+} );
+
+window.Demo = self;
 ```
 
 Done. It is that simple.
-A Model and a view definition and some markup to connect them.
+The code of Main will be executed and walk through the HTML and finds all mounting points and matches to templates and models.
+Creates the required controllers and viewmodels in Mithril and performs the mounting action.
 
-Below, you can find the generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself. ;)
+In file m/Person.js, you can find the generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself. ;)
 
-
-#### The generated [Mithril](https://lhorie.github.io/mithril/) component
-
-```javascript
-var m = require('mithril');
-
-var mapObject = require('jade-mithrilier').mapObject();
-
-var _ = require('lodash');
-
-var v = require('vindication.js');
-
-function addClass( el, className ){
-	if (el.classList)
-		el.classList.add(className);
-	else
-		el.className += ' ' + className;
-	return this;
-}
-function valuateContent(element, model, path, milieu, key) {
-	if (!milieu[key]) return null;
-	var f = new Function('$root', '$item', '$index', 'return ' + milieu[key] + ';');
-	try {
-		return {
-			value: f(model, milieu.item || model, milieu.index)
-		};
-	} catch (err) {
-		err.message = 'While evaluating: ' + milieu[key] + ' ' + err.message;
-		console.error(err);
-	}
-	return null;
-}
-
-function valuateVisibility(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-visible');
-	if (res) {
-		element.style.visibility = res.value ? 'visible' : 'hidden';
-	}
-}
-
-function valuateHTML(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-html');
-	if (res) {
-		while (element.firstChild)
-			element.removeChild(element.firstChild);
-		try {
-			element.insertAdjacentHTML('afterbegin', res.value);
-		} catch (err) {
-			err.message = 'While parsing html text: ' + res.value + ' ' + err.message;
-			console.error(err);
-		}
-	}
-}
-
-function valuateStyle(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-style');
-	if (res) {
-		var styles = res.value;
-		for (var key in styles) {
-			if (key) {
-				if (styles[key])
-					element.style[key] = styles[key];
-				else
-					delete element.style[key];
-			}
-		}
-	}
-}
-
-function valuateAttribute(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-attr');
-	if (res) {
-		var attributes = res.value;
-		for (var key in attributes) {
-			if (key) {
-				if (key === 'class')
-					addClass(element, attributes[key]);
-				else
-					element[key] = attributes[key];
-			}
-		}
-	}
-}
-
-function validation(model, path, V) {
-	var qualifiers = path.split('.');
-	var value = model,
-		contraint = V;
-	for (var i = 0; i < qualifiers.length && value[qualifiers[i]] && contraint[qualifiers[i]]; ++i) {
-		value = value[qualifiers[i]];
-		contraint = contraint[qualifiers[i]];
-	}
-	return !value || !_.isFunction(value) || !contraint || v.validate(value(), contraint);
-}
-
-function createConfig(model, path, milieu) {
-	return function(element, isInit, context) {
-		valuateVisibility(element, model, path, milieu);
-		valuateAttribute(element, model, path, milieu);
-		valuateStyle(element, model, path, milieu);
-		valuateHTML(element, model, path, milieu);
-	};
-}
-
-module.exports = {
-	mount: function(model, context, name, element) {
-		var Controller = MithrilMapper.mapObject(name, model.validation);
-		var Component = {
-			controller: Controller,
-			view: function(ctrl, mdl) {
-				context[name] = {
-					model: ctrl[name],
-					controller: ctrl
-				};
-				return m("div", {
-					"className": "section"
-				}, [m("text", {
-					"className": "h6"
-				}, ["Sign up"]), m("br", {
-					"className": ""
-				}, []), m("input", {
-					value: ctrl[name].name(),
-					oninput: m.withAttr('value', ctrl[name].name),
-					config: createConfig(ctrl[name], 'name', {
-						V: ctrl._validation
-					}),
-					"type": "text",
-					"id": "join_name",
-					"placeholder": "Your name",
-					"data-bind": "name",
-					"className": "c_ds_blue hN text-center"
-				}, []), m("br", {
-					"className": ""
-				}, []), m("input", {
-					value: ctrl[name].email(),
-					oninput: m.withAttr('value', ctrl[name].email),
-					config: createConfig(ctrl[name], 'email', {
-						V: ctrl._validation
-					}),
-					"type": "text",
-					"id": "join_email",
-					"placeholder": "Your email address",
-					"data-bind": "email",
-					"className": "c_ds_blue hN text-center"
-				}, []), m("br", {
-					"className": ""
-				}, []), m("text", {
-					"className": ""
-				}, ["Accept?"]), m("input", {
-					value: ctrl[name].terms(),
-					onclick: m.withAttr('checked', ctrl[name].terms),
-					checked: ctrl[name].terms(),
-					config: createConfig(ctrl[name], 'terms', {
-						V: ctrl._validation
-					}),
-					"type": "checkbox",
-					"data-bind": "terms",
-					"className": "checkbox"
-				}, []), m("br", {
-					"className": ""
-				}, []), m("text", {
-					config: createConfig(ctrl[name], '', {
-						'data-visible': "$item.terms()",
-						V: ctrl._validation
-					}),
-					"data-visible": "$item.terms()",
-					"className": ""
-				}, ["Accept check"]), m("br", {
-					"className": ""
-				}, []), m("br", {
-					"className": ""
-				}, []), m("text", {
-					textContent: ctrl[name].name(),
-					config: createConfig(ctrl[name], 'null', {
-						V: ctrl._validation
-					}),
-					"data-value": "name",
-					"className": ""
-				}, ["Addresses:"]), m("br", {
-					"className": ""
-				}, []), m("div", {
-					config: createConfig(ctrl[name], 'addresses', {
-						V: ctrl._validation
-					}),
-					"data-each": "addresses",
-					"className": "row-section"
-				}, ctrl[name].addresses.map(function(item, index, array) {
-					return [m("div", {
-						"className": "row"
-					}, [m("input", {
-						value: item.city(),
-						oninput: m.withAttr('value', item.city),
-						config: createConfig(ctrl[name], 'addresses.city', {
-							item: item,
-							index: index,
-							V: ctrl._validation
-						}),
-						"type": "text",
-						"placeholder": "Your city",
-						"data-bind": "city",
-						"className": "c_ds_blue hN text-center"
-					}, []), m("br", {
-						"className": ""
-					}, []), m("input", {
-						value: item.street(),
-						oninput: m.withAttr('value', item.street),
-						config: createConfig(ctrl[name], 'addresses.street', {
-							item: item,
-							index: index,
-							V: ctrl._validation
-						}),
-						"type": "text",
-						"placeholder": "Your street",
-						"data-bind": "street",
-						"className": "c_ds_blue hN text-center"
-					}, []), m("br", {
-						"className": ""
-					}, []), m("input", {
-						value: item.active(),
-						onclick: m.withAttr('checked', item.active),
-						checked: item.active(),
-						config: createConfig(ctrl[name], 'addresses.active', {
-							item: item,
-							index: index,
-							V: ctrl._validation
-						}),
-						"type": "checkbox",
-						"data-bind": "active",
-						"className": "checkbox"
-					}, []), m("br", {
-						"className": ""
-					}, []), m("text", {
-						config: createConfig(ctrl[name], 'addresses', {
-							item: item,
-							index: index,
-							'data-visible': "$item.active()",
-							V: ctrl._validation
-						}),
-						"data-visible": "$item.active()",
-						"className": ""
-					}, ["Visibility check"]), m("br", {
-						"className": ""
-					}, []), m("text", {
-						config: createConfig(ctrl[name], 'addresses', {
-							item: item,
-							index: index,
-							'data-attr': "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
-							V: ctrl._validation
-						}),
-						"data-attr": "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
-						"className": ""
-					}, ["Gyümölcsös"]), m("br", {
-						"className": ""
-					}, []), m("text", {
-						config: createConfig(ctrl[name], 'addresses', {
-							item: item,
-							index: index,
-							'data-style': "{ color: ($item.active() ? 'green' : 'red') }",
-							V: ctrl._validation
-						}),
-						"data-style": "{ color: ($item.active() ? 'green' : 'red') }",
-						"className": ""
-					}, ["Colored"]), m("br", {
-						"className": ""
-					}, []), m("div", {
-						config: createConfig(ctrl[name], 'addresses', {
-							item: item,
-							index: index,
-							'data-html': "$root.template()",
-							V: ctrl._validation
-						}),
-						"data-html": "$root.template()",
-						"className": ""
-					}, [])])];
-				}))]);
-			}
-
-		};
-
-		m.mount(element, m.component(Component, model.dataModel));
-	}
-};
-```
 
 
 ## Binding markup
 
 It handles the following binding markup:
 
-- data-bind: two-way binding for a given attribute of the model
+At mounting points:
+
+- data-bind: identifies the mithril template / view to bind with
+- data-model: when you share templates and models across DOM elements, this attributes helps to match the participants
+
+In template JADE:
+
 - data-value: read-only binding for a given attribute of the model
 - data-each: maps array-typed attribute from the model
 - data-attr: attributes of a given DOM element are set dynamically by the expression defined by 'data-visible'
