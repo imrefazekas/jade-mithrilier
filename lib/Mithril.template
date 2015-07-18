@@ -103,7 +103,7 @@ function valuateTap(context, element, model, path, milieu) {
 	if( checkContent( milieu, 'data-tap' ) ){
 		new Hammer(element, {}).on("tap", function(ev) {
 			if (context && context.emit)
-				context.emit('taped', element, model, path);
+				context.emit('taped', element, model, path, milieu);
 		});
 	}
 }
