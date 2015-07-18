@@ -6,6 +6,9 @@ var _ = require('lodash');
 
 var v = require('vindication.js');
 
+var Hammer = require('hammerjs');
+delete Hammer.defaults.cssProps.userSelect;
+
 function addClass( el, className ){
 	if (el.classList)
 		el.classList.add(className);
@@ -93,6 +96,12 @@ function valuateAttribute( element, model, path, milieu ){
 		}
 	}
 }
+function valuateTap( context, element, model, path ){
+	new Hammer(element, {}).on("tap", function(ev) {
+		if( context && context.emit )
+			context.emit( 'taped', element, model, path );
+	});
+}
 function readValidationRule( model, path, V ){
 	var qualifiers = path.split('.');
 	var value = model, contraint = V;
@@ -102,14 +111,17 @@ function readValidationRule( model, path, V ){
 	return { value: value, contraint: contraint };
 }
 function createConfig( appContext, model, path, milieu ){
-	return function(element, isInit, context){
+	return function(element, isInitialized , context){
 		valuateVisibility( element, model, path, milieu );
 		valuateDisplay( element, model, path, milieu );
 		valuateAttribute( element, model, path, milieu );
 		valuateStyle( element, model, path, milieu );
 		valuateHTML( element, model, path, milieu );
 		valuateEventBinders( appContext, element, model, path, milieu );
-		if( isInit && milieu.clearElement && milieu.invalidElement && milieu.validElement ){
+		if( !isInitialized  ){
+			valuateTap( appContext, element, model, path );
+		}
+		else if( milieu.clearElement && milieu.invalidElement && milieu.validElement ){
 			var vRule = readValidationRule( model, path, milieu.V );
 			if( vRule.value && _.isFunction(vRule.value) && vRule.contraint ){
 				var inValid = v.validate( vRule.value(), vRule.contraint );
