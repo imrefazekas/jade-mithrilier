@@ -32,6 +32,9 @@ function valuateEventBinders( context, element, model, path, milieu ){
 		}
 	}
 }
+function checkContent( milieu, key ){
+	return milieu[ key ];
+}
 function valuateContent( element, model, path, milieu, key ){
 	if( !milieu[ key ] ) return null;
 	var f = new Function( '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
@@ -96,11 +99,13 @@ function valuateAttribute( element, model, path, milieu ){
 		}
 	}
 }
-function valuateTap( context, element, model, path ){
-	new Hammer(element, {}).on("tap", function(ev) {
-		if( context && context.emit )
-			context.emit( 'taped', element, model, path );
-	});
+function valuateTap(context, element, model, path, milieu) {
+	if( checkContent( milieu, 'data-tap' ) ){
+		new Hammer(element, {}).on("tap", function(ev) {
+			if (context && context.emit)
+				context.emit('taped', element, model, path);
+		});
+	}
 }
 function readValidationRule( model, path, V ){
 	var qualifiers = path.split('.');
@@ -119,7 +124,7 @@ function createConfig( appContext, model, path, milieu ){
 		valuateHTML( element, model, path, milieu );
 		valuateEventBinders( appContext, element, model, path, milieu );
 		if( !isInitialized  ){
-			valuateTap( appContext, element, model, path );
+			valuateTap(appContext, element, model, path, milieu);
 		}
 		else if( milieu.clearElement && milieu.invalidElement && milieu.validElement ){
 			var vRule = readValidationRule( model, path, milieu.V );
