@@ -245,3 +245,4 @@ In template JADE:
 - data-visible: visibility of a given DOM element is determined dynamically by the expression defined by 'data-visible'
 - data-style: style properties of a given DOM element are determined dynamically by the expression defined by 'data-style'
 - data-html: the content of a given DOM element is determined dynamically by the expression defined by 'data-html'
+- data-tap: tap handler. The element will catch tap events (via [HammerJS](http://hammerjs.github.io)) and generate 'tapped' events through the context
