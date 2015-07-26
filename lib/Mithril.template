@@ -1,6 +1,6 @@
 var m = require('mithril');
 
-var mapObject = require('jade-mithrilier').mapObject();
+var mapObject = require('mithril-mapper').mapObject;
 
 var _ = require('isa.js');
 
