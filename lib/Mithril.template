@@ -2,7 +2,7 @@ var m = require('mithril');
 
 var mapObject = require('jade-mithrilier').mapObject();
 
-var _ = require('lodash');
+var _ = require('isa.js');
 
 var v = require('vindication.js');
 
