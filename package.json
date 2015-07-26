@@ -25,9 +25,9 @@
   "main": "lib/Main.js",
   "dependencies": {
     "install": "^0.1.8",
+    "isa.js": "^1.0.0",
     "jade": "~1",
     "js-beautify": "~1",
-    "lodash": "~3",
     "moment": "^2.10.3",
     "npm": "^2.13.1",
     "uglify-js": "~2",
