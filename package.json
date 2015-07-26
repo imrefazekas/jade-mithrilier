@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": [
@@ -24,15 +24,11 @@
   "license": "MIT",
   "main": "lib/Main.js",
   "dependencies": {
-    "install": "^0.1.8",
     "isa.js": "^1.0.0",
     "jade": "~1",
     "js-beautify": "~1",
     "mithril": "^0.2.0",
-    "moment": "^2.10.3",
-    "npm": "^2.13.1",
-    "uglify-js": "~2",
-    "vindication.js": "^3.0.2"
+    "moment": "^2.10.3"
   },
   "devDependencies": {
     "gulp": "~3",
@@ -43,5 +39,5 @@
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.9.6"
+  "_id": "jade-mithrilier@0.9.7"
 }
