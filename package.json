@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": [
@@ -28,6 +28,7 @@
     "isa.js": "^1.0.0",
     "jade": "~1",
     "js-beautify": "~1",
+    "mithril": "^0.2.0",
     "moment": "^2.10.3",
     "npm": "^2.13.1",
     "uglify-js": "~2",
@@ -42,5 +43,5 @@
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.9.5"
+  "_id": "jade-mithrilier@0.9.6"
 }
