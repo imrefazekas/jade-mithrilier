@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": [
@@ -26,18 +26,13 @@
   "dependencies": {
     "isa.js": "^1.0.0",
     "jade": "~1",
-    "js-beautify": "~1",
-    "mithril": "^0.2.0",
-    "moment": "^2.10.3"
+    "js-beautify": "~1"
   },
   "devDependencies": {
-    "gulp": "~3",
-    "gulp-util": "latest",
-    "webpack": "~1"
   },
   "scripts": {},
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.9.8"
+  "_id": "jade-mithrilier@0.9.9"
 }
