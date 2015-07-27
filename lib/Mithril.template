@@ -1,6 +1,7 @@
 var m = require('mithril');
 
-var mapObject = require('mithril-mapper').mapObject;
+var mapper = require('mithril-mapper');
+var mapObject = mapper.mapObject.bind( mapper );
 
 var _ = require('isa.js');
 
