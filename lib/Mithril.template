@@ -23,13 +23,17 @@ function valuateEventBinders( context, element, model, path, milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
 			var eventName = key.substring( 'data-event-'.length );
 			var fnName = milieu[ key ];
-			if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
-				throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
-			element.addEventListener(eventName, function(){
-				m.startComputation();
-				context[ fnName ].apply( context, arguments );
-				m.endComputation();
-			} );
+			var refName = eventName + 'For' + path;
+			if( !context[ refName ] ){
+				if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
+					throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
+				context[ refName ] = function(){
+					m.startComputation();
+					context[ fnName ].apply( context, arguments );
+					m.endComputation();
+				};
+				element.addEventListener(eventName, context[ refName ]);
+			}
 		}
 	}
 }
@@ -142,7 +146,7 @@ function createConfig( viewName, modelName, appContext, model, path, milieu ){
 }
 
 module.exports = {
-	mount: function( model, context, viewName, modelName, element ){
+	mount: function( model, context, viewName, modelName, element, envOptions ){
 		var Controller = mapObject( modelName, model.validation );
 		var firstRun = true;
 
