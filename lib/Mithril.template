@@ -18,12 +18,12 @@ function addClass( el, className ){
 	return this;
 }
 
-function valuateEventBinders( context, element, model, path, milieu ){
+function valuateEventBinders( viewName, context, element, model, path, milieu ){
 	for( var key in milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
 			var eventName = key.substring( 'data-event-'.length );
 			var fnName = milieu[ key ];
-			var refName = eventName + 'For' + path;
+			var refName = eventName + 'For' + viewName + 'At' + path;
 			if( !context[ refName ] ){
 				if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
 					throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
@@ -127,7 +127,7 @@ function createConfig( viewName, modelName, appContext, model, path, milieu ){
 		valuateAttribute( element, model, path, milieu );
 		valuateStyle( element, model, path, milieu );
 		valuateHTML( element, model, path, milieu );
-		valuateEventBinders( appContext, element, model, path, milieu );
+		valuateEventBinders( viewName, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
 			valuateTap( viewName, modelName, appContext, element, model, path, milieu );
 		}
