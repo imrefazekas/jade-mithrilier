@@ -17,6 +17,9 @@ function addClass( el, className ){
 		el.className += ' ' + className;
 	return this;
 }
+function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function valuateEventBinders( viewName, context, element, model, path, milieu ){
 	for( var key in milieu ){
@@ -104,6 +107,12 @@ function valuateAttribute( element, model, path, milieu ){
 		}
 	}
 }
+function valuateMember( ctrl, element, milieu ){
+	if( checkContent( milieu, 'data-member' ) ){
+		var capName = capitalizeFirstLetter( milieu[ 'data-member' ] );
+		element.checked = ctrl['hasIn'+capName]( element.value || element.name );
+	}
+}
 function valuateTap( viewName, modelName, context, element, model, path, milieu ){
 	if( checkContent( milieu, 'data-tap' ) ){
 		new Hammer(element, {}).on("tap", function(ev) {
@@ -120,8 +129,9 @@ function readValidationRule( model, path, V ){
 	}
 	return { value: value, contraint: contraint };
 }
-function createConfig( viewName, modelName, appContext, model, path, milieu ){
+function createConfig( ctrl, viewName, modelName, appContext, model, path, milieu ){
 	return function(element, isInitialized , context){
+		valuateMember( ctrl, element, milieu );
 		valuateVisibility( element, model, path, milieu );
 		valuateDisplay( element, model, path, milieu );
 		valuateAttribute( element, model, path, milieu );
