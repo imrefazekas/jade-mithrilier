@@ -31,9 +31,7 @@ function valuateEventBinders( viewName, context, element, model, path, milieu ){
 				if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
 					throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
 				context[ refName ] = function(){
-					m.startComputation();
 					context[ fnName ].apply( context, arguments );
-					m.endComputation();
 				};
 				element.addEventListener(eventName, context[ refName ]);
 			}
