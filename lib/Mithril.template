@@ -26,7 +26,8 @@ function valuateEventBinders( viewName, context, element, model, path, milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
 			var eventName = key.substring( 'data-event-'.length );
 			var fnName = milieu[ key ];
-			var refName = eventName + 'For' + viewName + 'At' + path;
+			if( !element.id ) throw new Error('ID is required for event binding');
+			var refName = eventName + 'For' + element.id; // viewName + (element.id||'') + 'At' + path;
 			if( !context[ refName ] ){
 				if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
 					throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
@@ -37,39 +38,40 @@ function valuateEventBinders( viewName, context, element, model, path, milieu ){
 					if( context.stopComputationForEvents )
 						m.endComputation();
 				};
-				element.addEventListener(eventName, context[ refName ]);
 			}
+			element.removeEventListener(eventName, context[ refName ]);
+			element.addEventListener(eventName, context[ refName ]);
 		}
 	}
 }
 function checkContent( milieu, key ){
 	return milieu[ key ];
 }
-function valuateContent( element, model, path, milieu, key ){
+function valuateContent( context, element, model, path, milieu, key ){
 	if( !milieu[ key ] ) return null;
-	var f = new Function( '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
+	var f = new Function( '$context', '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
 	try{
-		return { value: f( model, milieu.item || model, milieu.index ) };
+		return { value: f( context, model, milieu.item || model, milieu.index ) };
 	} catch( err ){
 		err.message = 'While evaluating: ' + milieu[ key ] + ' ' + err.message;
 		console.error( err );
 	}
 	return null;
 }
-function valuateVisibility( element, model, path, milieu ){
-	var res = valuateContent( element, model, path, milieu, 'data-visible' );
+function valuateVisibility( context, element, model, path, milieu ){
+	var res = valuateContent( context, element, model, path, milieu, 'data-visible' );
 	if( res ){
 		element.style.visibility = res.value ? 'visible' : 'hidden';
 	}
 }
-function valuateDisplay( element, model, path, milieu ){
-	var res = valuateContent( element, model, path, milieu, 'data-display' );
+function valuateDisplay( context, element, model, path, milieu ){
+	var res = valuateContent( context, element, model, path, milieu, 'data-display' );
 	if( res ){
 		element.style.display = res.value ? 'inline' : 'none';
 	}
 }
-function valuateHTML( element, model, path, milieu ){
-	var res = valuateContent( element, model, path, milieu, 'data-html' );
+function valuateHTML( context, element, model, path, milieu ){
+	var res = valuateContent( context, element, model, path, milieu, 'data-html' );
 	if( res ){
 		while (element.firstChild)
 			element.removeChild( element.firstChild );
@@ -81,8 +83,8 @@ function valuateHTML( element, model, path, milieu ){
 		}
 	}
 }
-function valuateStyle( element, model, path, milieu ){
-	var res = valuateContent( element, model, path, milieu, 'data-style' );
+function valuateStyle( context, element, model, path, milieu ){
+	var res = valuateContent( context, element, model, path, milieu, 'data-style' );
 	if( res ){
 		var styles = res.value;
 		for( var key in styles ){
@@ -95,8 +97,8 @@ function valuateStyle( element, model, path, milieu ){
 		}
 	}
 }
-function valuateAttribute( element, model, path, milieu ){
-	var res = valuateContent( element, model, path, milieu, 'data-attr' );
+function valuateAttribute( context, element, model, path, milieu ){
+	var res = valuateContent( context, element, model, path, milieu, 'data-attr' );
 	if( res ){
 		var attributes = res.value;
 		for( var key in attributes ){
@@ -138,11 +140,11 @@ function readValidationRule( model, path, V ){
 function createConfig( ctrl, viewName, modelName, appContext, model, path, milieu ){
 	return function(element, isInitialized , context){
 		valuateMember( ctrl, element, milieu );
-		valuateVisibility( element, model, path, milieu );
-		valuateDisplay( element, model, path, milieu );
-		valuateAttribute( element, model, path, milieu );
-		valuateStyle( element, model, path, milieu );
-		valuateHTML( element, model, path, milieu );
+		valuateVisibility( appContext, element, model, path, milieu );
+		valuateDisplay( appContext, element, model, path, milieu );
+		valuateAttribute( appContext, element, model, path, milieu );
+		valuateStyle( appContext, element, model, path, milieu );
+		valuateHTML( appContext, element, model, path, milieu );
 		valuateEventBinders( viewName, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
 			valuateTap( viewName, modelName, appContext, element, model, path, milieu );
