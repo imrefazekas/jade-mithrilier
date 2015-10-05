@@ -22,6 +22,7 @@ function capitalizeFirstLetter(string) {
 }
 
 function valuateEventBinders( viewName, context, element, model, path, milieu ){
+	var compute = context.stopComputationForEvents || !!milieu['data-compute'];
 	for( var key in milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
 			var eventName = key.substring( 'data-event-'.length );
@@ -32,10 +33,10 @@ function valuateEventBinders( viewName, context, element, model, path, milieu ){
 				if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
 					throw new Error( 'Missing event handler for: ' + eventName + ' by name of: ' + milieu[ key ] );
 				context[ refName ] = function(){
-					if( context.stopComputationForEvents )
+					if( compute )
 						m.startComputation();
 					context[ fnName ].apply( context, arguments );
-					if( context.stopComputationForEvents )
+					if( compute )
 						m.endComputation();
 				};
 			}

@@ -1,6 +1,6 @@
 {
   "name": "jade-mithrilier",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "mod-project-name": "jade-mithrilier",
   "description": "jade-mithrilier",
   "keywords": [
@@ -24,7 +24,7 @@
   "license": "MIT",
   "main": "lib/Main.js",
   "dependencies": {
-    "isa.js": "^1.0.0",
+    "isa.js": "~1",
     "jade": "~1",
     "js-beautify": "~1"
   },
@@ -34,5 +34,5 @@
   "engines": {
     "node": ">=0.12.2"
   },
-  "_id": "jade-mithrilier@0.10.1"
+  "_id": "jade-mithrilier@0.10.2"
 }
