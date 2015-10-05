@@ -145,8 +145,8 @@ function createConfig( ctrl, viewName, modelName, appContext, model, path, milie
 		valuateAttribute( appContext, element, model, path, milieu );
 		valuateStyle( appContext, element, model, path, milieu );
 		valuateHTML( appContext, element, model, path, milieu );
-		valuateEventBinders( viewName, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
+			valuateEventBinders( viewName, appContext, element, model, path, milieu );
 			valuateTap( viewName, modelName, appContext, element, model, path, milieu );
 		}
 		else if( milieu.clearElement && milieu.invalidElement && milieu.validElement ){
