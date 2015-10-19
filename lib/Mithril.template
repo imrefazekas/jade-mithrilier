@@ -27,7 +27,10 @@ function valuateEventBinders( viewName, context, element, model, path, milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
 			var eventName = key.substring( 'data-event-'.length );
 			var fnName = milieu[ key ];
-			if( !element.id ) throw new Error('ID is required for event binding');
+			if( !element.id ){
+				console.error( 'ID is required for event binding', element );
+				throw new Error('ID is required for event binding');
+			}
 			var refName = eventName + 'For' + element.id; // viewName + (element.id||'') + 'At' + path;
 			if( !context[ refName ] ){
 				if( !context[ fnName ] || !_.isFunction( context[fnName] ) )
