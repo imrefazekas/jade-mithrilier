@@ -54,31 +54,31 @@ function valuateEventBinders( viewName, context, element, model, path, milieu ){
 function checkContent( milieu, key ){
 	return milieu[ key ];
 }
-function valuateContent( context, element, model, path, milieu, key ){
+function valuateContent( controlOptions, context, element, model, path, milieu, key ){
 	if( !milieu[ key ] ) return null;
-	var f = new Function( '$context', '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
+	var f = new Function( '$opts', '$context', '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
 	try{
-		return { value: f( context, model, milieu.item || model, milieu.index ) };
+		return { value: f( controlOptions, context, model, milieu.item || model, milieu.index ) };
 	} catch( err ){
 		err.message = 'While evaluating: ' + milieu[ key ] + ' ' + err.message;
 		console.error( err );
 	}
 	return null;
 }
-function valuateVisibility( context, element, model, path, milieu ){
-	var res = valuateContent( context, element, model, path, milieu, 'data-visible' );
+function valuateVisibility( controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( controlOptions, context, element, model, path, milieu, 'data-visible' );
 	if( res ){
 		element.style.visibility = res.value ? 'visible' : 'hidden';
 	}
 }
-function valuateDisplay( context, element, model, path, milieu ){
-	var res = valuateContent( context, element, model, path, milieu, 'data-display' );
+function valuateDisplay( controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( controlOptions, context, element, model, path, milieu, 'data-display' );
 	if( res ){
 		element.style.display = res.value ? 'inline' : 'none';
 	}
 }
-function valuateHTML( context, element, model, path, milieu ){
-	var res = valuateContent( context, element, model, path, milieu, 'data-html' );
+function valuateHTML( controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( controlOptions, context, element, model, path, milieu, 'data-html' );
 	if( res ){
 		while (element.firstChild)
 			element.removeChild( element.firstChild );
@@ -90,8 +90,8 @@ function valuateHTML( context, element, model, path, milieu ){
 		}
 	}
 }
-function valuateStyle( context, element, model, path, milieu ){
-	var res = valuateContent( context, element, model, path, milieu, 'data-style' );
+function valuateStyle( controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( controlOptions, context, element, model, path, milieu, 'data-style' );
 	if( res ){
 		var styles = res.value;
 		for( var key in styles ){
@@ -104,8 +104,8 @@ function valuateStyle( context, element, model, path, milieu ){
 		}
 	}
 }
-function valuateAttribute( context, element, model, path, milieu ){
-	var res = valuateContent( context, element, model, path, milieu, 'data-attr' );
+function valuateAttribute( controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( controlOptions, context, element, model, path, milieu, 'data-attr' );
 	if( res ){
 		var attributes = res.value;
 		for( var key in attributes ){
@@ -144,14 +144,14 @@ function readValidationRule( model, path, V ){
 	}
 	return { value: value, contraint: contraint };
 }
-function createConfig( ctrl, viewName, modelName, appContext, model, path, milieu ){
+function createConfig( ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu ){
 	return function(element, isInitialized , context){
 		valuateMember( ctrl, element, milieu );
-		valuateVisibility( appContext, element, model, path, milieu );
-		valuateDisplay( appContext, element, model, path, milieu );
-		valuateAttribute( appContext, element, model, path, milieu );
-		valuateStyle( appContext, element, model, path, milieu );
-		valuateHTML( appContext, element, model, path, milieu );
+		valuateVisibility( controlOptions, appContext, element, model, path, milieu );
+		valuateDisplay( controlOptions, appContext, element, model, path, milieu );
+		valuateHTML( controlOptions, appContext, element, model, path, milieu );
+		valuateStyle( controlOptions, appContext, element, model, path, milieu );
+		valuateAttribute( controlOptions, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
 			valuateEventBinders( viewName, appContext, element, model, path, milieu );
 			valuateTap( viewName, modelName, appContext, element, model, path, milieu );
@@ -171,9 +171,15 @@ function createConfig( ctrl, viewName, modelName, appContext, model, path, milie
 }
 
 module.exports = {
-	mount: function( model, context, viewName, modelName, element, envOptions ){
+	mount: function( model, context, viewName, modelName, element, envOptions, controlOptions ){
 		var Controller = mapObject( modelName, model.validation );
 		var firstRun = true;
+
+		if( controlOptions )
+			Array.prototype.forEach.call( Object.keys(controlOptions), function(key, i){
+				if( !Controller[key] )
+					Controller[key] = controlOptions[key];
+			} );
 
 		var Component = {
 			controller: Controller,
