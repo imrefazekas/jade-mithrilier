@@ -126,9 +126,10 @@ function valuateMember( ctrl, element, milieu ){
 }
 function valuateTap( viewName, modelName, context, element, model, path, milieu ){
 	if( checkContent( milieu, 'data-tap' ) ){
-		if( milieu[ 'data-tap' ] === 'false' ) return;
+		if( !milieu[ 'data-tap' ] || (milieu[ 'data-tap' ] === 'false') ) return;
 
 		var eventName = (milieu[ 'data-tap' ] === 'true') ? ('tapedOn' + viewName) : milieu[ 'data-tap' ];
+		console.log('>>>>>>>>>>>>>>>>>>>>>', eventName, milieu[ 'data-tap' ], milieu, element );
 		new Hammer(element, {}).on("tap", function(ev) {
 			if (context && context.emit){
 				context.emit( eventName, viewName, modelName, element, model, path, milieu);
