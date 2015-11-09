@@ -121,6 +121,8 @@ var Vanilla = require('./Vanilla');
 var EventEmitter = require('events').EventEmitter;
 var m = require('mithril');
 
+var updateModel = require('jade-mithrilier').updateModel;
+
 
 function ViewModel(){
 	EventEmitter.call( this );

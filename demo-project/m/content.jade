@@ -13,7 +13,7 @@
 	br
 	text(data-value="name") Addresses:
 	br
-	select(data-each="emails", data-event-change="emailSelected")
+	select#emails(data-each="emails", data-event-change="emailSelected")
 		option(data-value="$item", data-attr="{ value: $item() }")
 	.row-section(data-each="addresses")
 		.row

@@ -1,77 +1,51 @@
-JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhorie.github.io/mithril/).
+JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhorie.github.io/mithril/) and [JADE](http://jade-lang.com).
 
 [![NPM](https://nodei.co/npm/jade-mithrilier.png)](https://nodei.co/npm/jade-mithrilier/)
-
 
 ========
 
 [![Join the chat at https://gitter.im/imrefazekas/jade-mithrilier](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/imrefazekas/jade-mithrilier?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library allowing you define your views in [JADE](http://jade-lang.com) templating engine.
 
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library to allow you to better harmonise your MVC strategy with server-side models and rendering processes by using
+The aim is to have a toolset faciliting a design-focused orchestration levelling a very simple way to manage the MVC part of a webapp. You can define your
 
-- [JADE](http://jade-lang.com) as template engine
-- plain JS object as data models
-- and optionally plain JS object as validation rules via [vindication.js](https://github.com/imrefazekas/vindication.js/tree/master)
+- views using [JADE](http://jade-lang.com) as template engine
+- models and validation rules with plain JS object
 
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your SPAs.
+and [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your app.
 To support the "multi-island scenario", you can assiciate multiple views to the same model or mount the same templates to different DOM parent as your needs encourage you to orchestrate.
 
-# Installation
+Applications are not created in a vacuum, teams are working on it and design and code are evolving continuously urging the development team to handle representation freely.
+In other words, you should be encouraged to choose the template engine and the orchestration structure of yours, fitting the best your project. This solution wants to show a proven way.
 
-	$ npm install jade-mithrilier --save
 
-## Concept
+## Concept of JADE
 
-To have a real full-stack solution, common coding style and module formats have to be introduced, data models and validation rules used by server-side and clien-side must be shared.
+Some environment involving multiple teams urges the need of an independent view layer, where the functional and the presentation layer can be distinguished.
+The view layer must be freed from unnecessary technical decoration within the reach of everyone during the whole lifecycle of the app.
+Styles, layouts, UI components could be refined over the time not inducing any process on service-level.
+
+[JADE](http://jade-lang.com) is a very simple, yet power templating engine to be used.
+
+
+## Concept of plain JS models
+
+To have a real JS-based full-stack solution, the need of shared data models and validation comes naturally. You execute the same validation rules on the UI and in the REST services; you use the same models in the MVC mapping code and DB services.
+
+We should resist the temptation of rogue paths. No philosophical essays can be considered as apology for breaking the most important design pattern of JS: developers must respect the standards (and the code culture of the company).
+You can have one (versioned) model repository used by all tiers of your app.
+
+__The first step on this road is common coding style and module format.__
+
 The simplest way is to use plain and pure JS object as a CommonJS module requirable by any code you write.
-In EE-world, applications are not created in a vacuum, teams are working on it and design and code are evolving continuously urging the development team to handle representation freely. In other words, you should be encouraged to choose the template engine and the orchestration structure of yours, fitting the best your project.
-
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a solution providing [JADE](http://jade-lang.com) template engine and markup-based mapping and CommonJS object as Models and validation at your service.
-
-For a complete demo about features and services, see the folder [demo-project](https://github.com/imrefazekas/jade-mithrilier/tree/master/demo-project). It uses [Webpack](http://webpack.github.io). CommonJS and require on the client side, yes.
+Require function is provided on the client-side by [webpack](https://webpack.github.io) or [browserify](http://browserify.org).
 
 
-## Quick install
+## Straight in into an example
 
-```javascript
-var mithrilier = require('jade-mithrilier');
-...
-var jadeContent = fs.readFileSync( [path], { encoding: 'utf8' });
-var mithrilView = mithrilier.generateMithrilJS( jadeContent );
-fs.writeFileSync( [path], mithrilView, { encoding: 'utf8' } );
-...
-```
+The following JADE file (Content.jade) defines a view of a Person:
 
-Note: To convert Jade to [Mithril](https://lhorie.github.io/mithril/) JS view code, a build-time process should be defined.
-
-
-## A simple example project
-
-This is a reduced version of the example located in folder [demo-project](https://github.com/imrefazekas/jade-mithrilier/tree/master/demo-project),  demonstrating how to build up a very simple page
-
-#### Person.js data model with validation:
-```javascript
-module.exports = {
-	dataModel: {
-		name: 'John Doe',
-		email: 'a@b.hu',
-		terms: true,
-		addresses: [
-			{
-				city: 'Debrecen',
-				street: 'Vrndavana',
-				active: true
-			}
-		],
-		template: function(){
-			return '<text> AbrakaDabra </text>';
-		}
-	}
-};
-```
-
-#### The Person.jade view in JADE (example to all kind of bindings supported):
 ```jade
 .section
 	text.h6 Sign up
@@ -79,163 +53,90 @@ module.exports = {
 	input.c_ds_blue.hN.text-center(type="text", id="join_name", placeholder="Your name", data-bind="name")
 	br
 	input.c_ds_blue.hN.text-center(type="text", id="join_email", placeholder="Your email address", data-bind="email")
-	br
-	text Accept?
-	input(type="checkbox", data-bind="terms").checkbox
-	br
-	text(data-visible="$item.terms()") Accept check
-	br
-	br
-	text(data-value="name") Addresses:
-	br
-	select(data-each="emails", data-event-change="emailSelected")
-		option(data-value="$item", data-attr="{ value: $item() }")
-	.row-section(data-each="addresses")
-		.row
-			input.c_ds_blue.hN.text-center(type="text", placeholder="Your city", data-bind="city")
-			br
-			input.c_ds_blue.hN.text-center(type="text", placeholder="Your street", data-bind="street")
-			br
-			input(type="checkbox", data-bind="active").checkbox
-			br
-			text(data-visible="$item.active()") Visibility check
-			br
-			text(data-attr="{ id: ($item.active() ? 'kortefa' : 'almafa') }") Gyümölcsös
-			br
-			text(data-style="{ color: ($item.active() ? 'green' : 'red') }") Colored
-			br
-			div(data-html="$root.template()")
 ```
 
-You can see here
+Let's reference it from an index.html file:
 
-- 2-way binding (_data-bind_)
-- 1-way binding (_data-value_)
-- event listeners
-- manupulations around attributes (_data-attr_), css (_data-style_) and visibility (_data-visible_)
-- html injections (_data-html_)
+```html
+<html>
+<body>
+	<div>
+		<div id="Content" data-mount="Content" data-model="Person"></div>
+	</div>
+	<script src="main.js"></script>
+</body>
+</html>
+```
 
-#### The Gulp build task:
+A 'div' tag has been defined embedding the Person view defined earlier.
+The main.js serves as the functional entry point.
+
+Let's compile the JADE onto Mithril using gulp:
+
 ```javascript
-var fs = require('fs');
-var gulp = require('gulp'),
-	webpack = require("webpack"),
-	gutil = require('gulp-util');
-
 var mithrilier = require('jade-mithrilier');
 
 gulp.task('mithril', function( cb ){
 	var folder = './m/';
 
-	var jadeContent = fs.readFileSync( folder + 'Person.jade', { encoding: 'utf8' });
+	var jadeContent = fs.readFileSync( 'Content.jade', { encoding: 'utf8' });
 	var mithrilView = mithrilier.generateMithrilJS( jadeContent );
-	fs.writeFileSync( folder + 'Person.js', mithrilView + '\n', { encoding: 'utf8' } );
+	fs.writeFileSync( 'Content.js', mithrilView.trim() + '\n', { encoding: 'utf8' } );
 
 	cb();
 });
-
-var config = {
-	...
-};
-gulp.task('webpack', function( callback ) {
-	webpack( config, function(err, stats) {
-		if(err)
-			throw new global.gutil.PluginError("webpack", err);
-		gutil.log("[webpack]", stats.toString({ }));
-		callback();
-	});
-});
-gulp.task( 'default', [ 'mithril', 'webpack' ] );
 ```
 
-Note: Of course, having multiple JADE files would require to have a "filelist reading - generating" modification in the task above...
-
-#### HTML code:
-
-```html
-<!DOCTYPE html>
-<html>
-
-<head>
-	<meta name="description" content="simple person model?">
-	<meta charset="utf-8">
-	<style>
-		.row-section {
-			margin-left: 1rem;
-		}
-		.row:not(:first-child) {
-			margin-top: 2rem;
-		}
-	</style>
-</head>
-
-<body>
-	<div data-mount="Person"></div>
-
-	<script src="main.js"></script>
-</body>
-
-</html>
-```
-
-#### Main.js
+Let's have a Person model:
 
 ```javascript
-var Vanilla = require('./Vanilla');
-var m = require('mithril');
-
-// The JS context of the example
-function ViewModel(){ }
-var viewModel = ViewModel.prototype;
-viewModel.emailSelected = function(){
-	console.log('?????', arguments);
-};
-var self = new ViewModel();
-
-// To load Datamodel files
-function createModelContext( context, modelName ){
-	if( !context[ modelName ] ){
-		context[ modelName ] = {
-			model: require( './models/' + modelName ),
-			vcs: []
-		};
+module.exports = {
+	dataModel: {
+		name: 'John Doe',
+		email: 'a@b.hu'
+	},
+	validation: {
+		name: { minlength: 6, element: ["John Doe"] },
+		email: { type: 'email' }
 	}
-}
-
-// to read all Mithril view JS files converted from JADE templates.
-var context = require.context( './m/', true, /.(js)$/);
-context.keys().forEach( function(key){
-	var modelLoader = context(key);
-	var viewName = key.match(/\w+/)[0];
-	var mounters = document.querySelectorAll('[data-mount=\"' + viewName + '\"]');
-	Array.prototype.forEach.call(mounters, function(element, i){
-		var modelName = element.getAttribute('data-model') || viewName;
-
-		createModelContext( self, modelName );
-
-		modelLoader.mount( self[ modelName ].model, self, viewName, modelName, element );
-	} );
-} );
-
-window.Demo = self;
+};
 ```
 
-Done. It is that simple.
-The code of Main will be executed and walk through the HTML and finds all mounting points and matches to templates and models.
-Creates the required controllers and viewmodels in Mithril and performs the mounting action.
+This CommonJS code defines the 'name' and 'email' attributes with validation rules attached.
 
-In file m/Person.js, you can find the generated [Mithril](https://lhorie.github.io/mithril/) component which __YOU NEVER WANTED TO WRITE AND ESPECIALLY MAINTAIN__ by yourself. ;)
+Let's connect it with the main.js:
 
+```javascript
+var m = require('mithril');
+var model = require( './models/Person' );
+var element = document.getElementById('Content');
+var viewName = element.getAttribute('data-mount');
+var modelName = element.getAttribute('data-model');
+modelLoader.mount( model, self, viewName, modelName, element );
+```
+
+And you are done.
+Of course, you can orchestrate your project as you desire. You can
+- have tons of models and views
+- use same models for different views
+- use same view at multiple points in the page
+
+For a complete demo about features and services, see the folder [demo-project](https://github.com/imrefazekas/jade-mithrilier/tree/master/demo-project). It uses
+- [Webpack](http://webpack.github.io) to have CommonJS and require function on the client-side
+- [gulp](http://gulpjs.com) delivering task execution
+
+Note: That demo reads uses automation to ready all views you define and all referred models. You might find this as overdramatisation, but it is actually closer to a live project.
 
 
 ## Binding markup
 
-It handles the following binding markup:
+[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) handles the following binding markup:
 
 At mounting points:
 
 - data-bind: identifies the mithril template / view to bind with
 - data-model: when you share templates and models across DOM elements, this attributes helps to match the participants
+- data-opts: when the binding is depending on specific unique context. Some part of the view can be seen only on the 'control' page but cannot be seen on the 'view' page. So one view reused on different places and behaving accordingly. This environment can be reached by using the '$opts' variable in an expression of the tags listed below.
 
 In template JADE:
 
@@ -246,3 +147,32 @@ In template JADE:
 - data-style: style properties of a given DOM element are determined dynamically by the expression defined by 'data-style'
 - data-html: the content of a given DOM element is determined dynamically by the expression defined by 'data-html'
 - data-tap: tap handler. The element will catch tap events (via [HammerJS](http://hammerjs.github.io)) and generate 'tapped' events through the context
+
+
+## License
+
+(The MIT License)
+
+Copyright (c) 2015 Imre Fazekas
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+## Bugs
+
+See <https://github.com/imrefazekas/jade-mithrilier/issues>.

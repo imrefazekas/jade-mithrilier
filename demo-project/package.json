@@ -1,0 +1,34 @@
+{
+  "name": "jade-mithrilier-demo",
+  "version": "1.0.0",
+  "description": "jade-mithrilier-demo",
+  "author": {
+    "name": "Imre Fazekas",
+    "email": "imre.fazekas@icloud.com"
+  },
+  "dependencies": {
+    "hammerjs": "^2.0.4",
+    "jade": "~1",
+    "jade-mithrilier": "^0.11.0",
+    "js-beautify": "~1",
+    "lodash": "~3",
+    "mithril": "^0.2.0",
+    "mithril-mapper": "^1.4.2",
+    "uglify-js": "~2",
+    "vindication.js": "^3.0.2"
+  },
+  "devDependencies": {
+    "connect": "^3.4.0",
+    "gulp": "~3",
+    "gulp-util": "latest",
+    "serve-static": "^1.10.0",
+    "webpack": "~1"
+  },
+  "scripts": {
+    start: 'node Server.js',
+    build: 'gulp'
+  },
+  "engines": {
+    "node": ">=0.12.2"
+  }
+}

@@ -1,10 +1,14 @@
 var m = require('mithril');
 
-var mapObject = require('jade-mithrilier').mapObject();
+var mapper = require('mithril-mapper');
+var mapObject = mapper.mapObject.bind(mapper);
 
-var _ = require('lodash');
+var _ = require('isa.js');
 
 var v = require('vindication.js');
+
+var Hammer = require('hammerjs');
+delete Hammer.defaults.cssProps.userSelect;
 
 function addClass(el, className) {
 	if (el.classList)
@@ -14,28 +18,51 @@ function addClass(el, className) {
 	return this;
 }
 
-function valuateEventBinders(context, element, model, path, milieu) {
+function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function valuateEventBinders(viewName, context, element, model, path, milieu) {
+	var compute = context.stopComputationForEvents || !!milieu['data-compute'];
 	for (var key in milieu) {
 		if (key && key.indexOf('data-event-') === 0) {
 			var eventName = key.substring('data-event-'.length);
 			var fnName = milieu[key];
-			if (!context[fnName] || !_.isFunction(context[fnName]))
-				throw new Error('Missing event handler for: ' + eventName + ' by name of: ' + milieu[key]);
-			element.addEventListener(eventName, function() {
-				m.startComputation();
-				context[fnName].apply(context, arguments);
-				m.endComputation();
-			});
+			if (!element.id) {
+				console.error('ID is required for event binding', element);
+				throw new Error('ID is required for event binding');
+			}
+			var refName = eventName + 'For' + element.id; // viewName + (element.id||'') + 'At' + path;
+			if (!context[refName]) {
+				if (!context[fnName] || !_.isFunction(context[fnName]))
+					throw new Error('Missing event handler for: ' + eventName + ' by name of: ' + milieu[key]);
+				context[refName] = function() {
+					var args = arguments;
+					setTimeout(function() {
+						if (compute)
+							m.startComputation();
+						context[fnName].apply(context, args);
+						if (compute)
+							m.endComputation();
+					}, 0);
+				};
+			}
+			element.removeEventListener(eventName, context[refName]);
+			element.addEventListener(eventName, context[refName]);
 		}
 	}
 }
 
-function valuateContent(element, model, path, milieu, key) {
+function checkContent(milieu, key) {
+	return milieu[key];
+}
+
+function valuateContent(controlOptions, context, element, model, path, milieu, key) {
 	if (!milieu[key]) return null;
-	var f = new Function('$root', '$item', '$index', 'return ' + milieu[key] + ';');
+	var f = new Function('$opts', '$context', '$root', '$item', '$index', 'return ' + milieu[key] + ';');
 	try {
 		return {
-			value: f(model, milieu.item || model, milieu.index)
+			value: f(controlOptions, context, model, milieu.item || model, milieu.index)
 		};
 	} catch (err) {
 		err.message = 'While evaluating: ' + milieu[key] + ' ' + err.message;
@@ -44,22 +71,22 @@ function valuateContent(element, model, path, milieu, key) {
 	return null;
 }
 
-function valuateVisibility(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-visible');
+function valuateVisibility(controlOptions, context, element, model, path, milieu) {
+	var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-visible');
 	if (res) {
 		element.style.visibility = res.value ? 'visible' : 'hidden';
 	}
 }
 
-function valuateDisplay(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-display');
+function valuateDisplay(controlOptions, context, element, model, path, milieu) {
+	var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-display');
 	if (res) {
 		element.style.display = res.value ? 'inline' : 'none';
 	}
 }
 
-function valuateHTML(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-html');
+function valuateHTML(controlOptions, context, element, model, path, milieu) {
+	var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-html');
 	if (res) {
 		while (element.firstChild)
 			element.removeChild(element.firstChild);
@@ -72,8 +99,8 @@ function valuateHTML(element, model, path, milieu) {
 	}
 }
 
-function valuateStyle(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-style');
+function valuateStyle(controlOptions, context, element, model, path, milieu) {
+	var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-style');
 	if (res) {
 		var styles = res.value;
 		for (var key in styles) {
@@ -87,8 +114,8 @@ function valuateStyle(element, model, path, milieu) {
 	}
 }
 
-function valuateAttribute(element, model, path, milieu) {
-	var res = valuateContent(element, model, path, milieu, 'data-attr');
+function valuateAttribute(controlOptions, context, element, model, path, milieu) {
+	var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-attr');
 	if (res) {
 		var attributes = res.value;
 		for (var key in attributes) {
@@ -99,6 +126,26 @@ function valuateAttribute(element, model, path, milieu) {
 					element[key] = attributes[key];
 			}
 		}
+	}
+}
+
+function valuateMember(ctrl, element, milieu) {
+	if (checkContent(milieu, 'data-member')) {
+		var capName = capitalizeFirstLetter(milieu['data-member']);
+		element.checked = ctrl['hasIn' + capName](element.value || element.name);
+	}
+}
+
+function valuateTap(viewName, modelName, context, element, model, path, milieu) {
+	if (checkContent(milieu, 'data-tap')) {
+		if (milieu['data-tap'] === 'false') return;
+
+		var eventName = (milieu['data-tap'] === 'true') ? ('tapedOn' + viewName) : milieu['data-tap'];
+		new Hammer(element, {}).on("tap", function(ev) {
+			if (context && context.emit) {
+				context.emit(eventName, viewName, modelName, element, model, path, milieu);
+			}
+		});
 	}
 }
 
@@ -116,15 +163,18 @@ function readValidationRule(model, path, V) {
 	};
 }
 
-function createConfig(appContext, model, path, milieu) {
-	return function(element, isInit, context) {
-		valuateVisibility(element, model, path, milieu);
-		valuateDisplay(element, model, path, milieu);
-		valuateAttribute(element, model, path, milieu);
-		valuateStyle(element, model, path, milieu);
-		valuateHTML(element, model, path, milieu);
-		valuateEventBinders(appContext, element, model, path, milieu);
-		if (isInit && milieu.clearElement && milieu.invalidElement && milieu.validElement) {
+function createConfig(ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu) {
+	return function(element, isInitialized, context) {
+		valuateMember(ctrl, element, milieu);
+		valuateVisibility(controlOptions, appContext, element, model, path, milieu);
+		valuateDisplay(controlOptions, appContext, element, model, path, milieu);
+		valuateHTML(controlOptions, appContext, element, model, path, milieu);
+		valuateStyle(controlOptions, appContext, element, model, path, milieu);
+		valuateAttribute(controlOptions, appContext, element, model, path, milieu);
+		if (!isInitialized) {
+			valuateEventBinders(viewName, appContext, element, model, path, milieu);
+			valuateTap(viewName, modelName, appContext, element, model, path, milieu);
+		} else if (milieu.clearElement && milieu.invalidElement && milieu.validElement) {
 			var vRule = readValidationRule(model, path, milieu.V);
 			if (vRule.value && _.isFunction(vRule.value) && vRule.contraint) {
 				var inValid = v.validate(vRule.value(), vRule.contraint);
@@ -139,16 +189,28 @@ function createConfig(appContext, model, path, milieu) {
 }
 
 module.exports = {
-	mount: function(model, context, viewName, modelName, element) {
+	mount: function(model, context, viewName, modelName, element, envOptions, controlOptions) {
 		var Controller = mapObject(modelName, model.validation);
+		var firstRun = true;
+
+		if (controlOptions)
+			Array.prototype.forEach.call(Object.keys(controlOptions), function(key, i) {
+				if (!Controller[key])
+					Controller[key] = controlOptions[key];
+			});
+
 		var Component = {
 			controller: Controller,
 			view: function(ctrl, mdl) {
-				context[modelName].vcs.push({
-					model: ctrl[modelName],
-					controller: ctrl
-				});
-				if (context && context.emit) context.emit('init' + viewName + 'Controller', ctrl);
+				ctrl.dateFormat = envOptions ? envOptions.dateFormat : 'DD.MM.YYYY';
+				if (firstRun) {
+					context[modelName].vcs.push({
+						model: ctrl[modelName],
+						controller: ctrl
+					});
+					if (context && context.emit) context.emit('init' + viewName + 'Controller', ctrl, mdl);
+					firstRun = false;
+				}
 				return m("div", {
 					"className": "section"
 				}, [m("text", {
@@ -158,7 +220,7 @@ module.exports = {
 				}, []), m("input", {
 					value: ctrl[modelName].name(),
 					oninput: m.withAttr('value', ctrl[modelName].name),
-					config: createConfig(context, ctrl[modelName], 'name', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'name', {
 						V: ctrl._validation,
 						clearElement: context.clearElement,
 						invalidElement: context.invalidElement,
@@ -174,7 +236,7 @@ module.exports = {
 				}, []), m("input", {
 					value: ctrl[modelName].email(),
 					oninput: m.withAttr('value', ctrl[modelName].email),
-					config: createConfig(context, ctrl[modelName], 'email', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'email', {
 						V: ctrl._validation,
 						clearElement: context.clearElement,
 						invalidElement: context.invalidElement,
@@ -193,7 +255,7 @@ module.exports = {
 					value: ctrl[modelName].terms(),
 					onclick: m.withAttr('checked', ctrl[modelName].terms),
 					checked: ctrl[modelName].terms(),
-					config: createConfig(context, ctrl[modelName], 'terms', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'terms', {
 						V: ctrl._validation,
 						clearElement: context.clearElement,
 						invalidElement: context.invalidElement,
@@ -205,7 +267,7 @@ module.exports = {
 				}, []), m("br", {
 					"className": ""
 				}, []), m("text", {
-					config: createConfig(context, ctrl[modelName], '', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], '', {
 						'data-visible': "$item.terms()",
 						V: ctrl._validation,
 						clearElement: context.clearElement,
@@ -220,7 +282,7 @@ module.exports = {
 					"className": ""
 				}, []), m("text", {
 					textContent: ctrl[modelName].name(),
-					config: createConfig(context, ctrl[modelName], 'name', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'name', {
 						V: ctrl._validation,
 						clearElement: context.clearElement,
 						invalidElement: context.invalidElement,
@@ -231,20 +293,21 @@ module.exports = {
 				}, ["Addresses:"]), m("br", {
 					"className": ""
 				}, []), m("select", {
-					config: createConfig(context, ctrl[modelName], 'emails', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'emails', {
 						'data-event-change': "emailSelected",
 						V: ctrl._validation,
 						clearElement: context.clearElement,
 						invalidElement: context.invalidElement,
 						validElement: context.validElement
 					}),
+					"id": "emails",
 					"data-each": "emails",
 					"data-event-change": "emailSelected",
 					"className": ""
 				}, ctrl[modelName].emails.map(function(item, index, array) {
 					return [m("option", {
 						textContent: item(),
-						config: createConfig(context, ctrl[modelName], 'emails.$item', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'emails.$item', {
 							item: item,
 							index: index,
 							'data-attr': "{ value: $item() }",
@@ -258,7 +321,7 @@ module.exports = {
 						"className": ""
 					}, [])];
 				})), m("div", {
-					config: createConfig(context, ctrl[modelName], 'addresses', {
+					config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
 						V: ctrl._validation,
 						clearElement: context.clearElement,
 						invalidElement: context.invalidElement,
@@ -272,7 +335,7 @@ module.exports = {
 					}, [m("input", {
 						value: item.city(),
 						oninput: m.withAttr('value', item.city),
-						config: createConfig(context, ctrl[modelName], 'addresses.city', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses.city', {
 							item: item,
 							index: index,
 							V: ctrl._validation,
@@ -289,7 +352,7 @@ module.exports = {
 					}, []), m("input", {
 						value: item.street(),
 						oninput: m.withAttr('value', item.street),
-						config: createConfig(context, ctrl[modelName], 'addresses.street', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses.street', {
 							item: item,
 							index: index,
 							V: ctrl._validation,
@@ -307,7 +370,7 @@ module.exports = {
 						value: item.active(),
 						onclick: m.withAttr('checked', item.active),
 						checked: item.active(),
-						config: createConfig(context, ctrl[modelName], 'addresses.active', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses.active', {
 							item: item,
 							index: index,
 							V: ctrl._validation,
@@ -321,7 +384,7 @@ module.exports = {
 					}, []), m("br", {
 						"className": ""
 					}, []), m("text", {
-						config: createConfig(context, ctrl[modelName], 'addresses', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
 							item: item,
 							index: index,
 							'data-visible': "$item.active()",
@@ -335,7 +398,7 @@ module.exports = {
 					}, ["Visibility check"]), m("br", {
 						"className": ""
 					}, []), m("text", {
-						config: createConfig(context, ctrl[modelName], 'addresses', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
 							item: item,
 							index: index,
 							'data-attr': "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
@@ -349,7 +412,7 @@ module.exports = {
 					}, ["Gyümölcsös"]), m("br", {
 						"className": ""
 					}, []), m("text", {
-						config: createConfig(context, ctrl[modelName], 'addresses', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
 							item: item,
 							index: index,
 							'data-style': "{ color: ($item.active() ? 'green' : 'red') }",
@@ -363,7 +426,7 @@ module.exports = {
 					}, ["Colored"]), m("br", {
 						"className": ""
 					}, []), m("div", {
-						config: createConfig(context, ctrl[modelName], 'addresses', {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
 							item: item,
 							index: index,
 							'data-html': "$root.template()",
