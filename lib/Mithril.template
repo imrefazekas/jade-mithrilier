@@ -56,9 +56,9 @@ function checkContent( milieu, key ){
 }
 function valuateContent( ctrl, controlOptions, context, element, model, path, milieu, key ){
 	if( !milieu[ key ] ) return null;
-	var f = new Function( '$ctrl', '$opts', '$context', '$root', '$item', '$index', 'return '+ milieu[ key ] + ';' );
+	var f = new Function( '$ctrl', '$opts', '$context', '$root', '$array', '$item', '$index', 'return '+ milieu[ key ] + ';' );
 	try{
-		return { value: f( ctrl, controlOptions, context, model, milieu.item || model, milieu.index ) };
+		return { value: f( ctrl, controlOptions, context, model, milieu.array, milieu.item || model, milieu.index ) };
 	} catch( err ){
 		err.message = 'While evaluating: ' + milieu[ key ] + ' ' + err.message;
 		console.error( err );
