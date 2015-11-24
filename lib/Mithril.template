@@ -17,6 +17,14 @@ function addClass( el, className ){
 		el.className += ' ' + className;
 	return this;
 }
+function removeClass( el, className ){
+	if (el.classList)
+		el.classList.remove(className);
+	else
+		el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+	return this;
+}
+
 function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -104,6 +112,16 @@ function valuateStyle( ctrl, controlOptions, context, element, model, path, mili
 		}
 	}
 }
+function valuateSelect( ctrl, controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-select' );
+	if( res ){
+		var selection = res.value;
+		if( selection )
+			addClass( element, 'selected' );
+		else
+			removeClass( element, 'selected' );
+	}
+}
 function valuateAttribute( ctrl, controlOptions, context, element, model, path, milieu ){
 	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-attr' );
 	if( res ){
@@ -151,6 +169,7 @@ function createConfig( ctrl, controlOptions, viewName, modelName, appContext, mo
 		valuateDisplay( ctrl, controlOptions, appContext, element, model, path, milieu );
 		valuateHTML( ctrl, controlOptions, appContext, element, model, path, milieu );
 		valuateStyle( ctrl, controlOptions, appContext, element, model, path, milieu );
+		valuateSelect( ctrl, controlOptions, appContext, element, model, path, milieu );
 		valuateAttribute( ctrl, controlOptions, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
 			valuateEventBinders( ctrl, viewName, appContext, element, model, path, milieu );
@@ -159,7 +178,7 @@ function createConfig( ctrl, controlOptions, viewName, modelName, appContext, mo
 		else if( milieu.clearElement && milieu.invalidElement && milieu.validElement ){
 			var vRule = readValidationRule( model, path, milieu.V );
 			if( vRule.value && _.isFunction(vRule.value) && vRule.contraint ){
-				var inValid = v.validate( vRule.value(), vRule.contraint );
+				var inValid = v.validate( vRule.value(), vRule.contraint, model );
 				milieu.clearElement( element );
 				if( inValid )
 					milieu.invalidElement( element, inValid );
