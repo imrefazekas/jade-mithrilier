@@ -62,31 +62,31 @@ function valuateEventBinders( ctrl, viewName, context, element, model, path, mil
 function checkContent( milieu, key ){
 	return milieu[ key ];
 }
-function valuateContent( ctrl, controlOptions, context, element, model, path, milieu, key ){
-	if( !milieu[ key ] ) return null;
-	var f = new Function( '$ctrl', '$opts', '$context', '$root', '$array', '$item', '$index', 'return '+ milieu[ key ] + ';' );
+function valuateContent( ctrl, controlOptions, context, element, model, path, milieu, value ){
+	if( !value ) return null;
+	var f = new Function( '$ctrl', '$opts', '$context', '$root', '$array', '$item', '$index', 'return '+ value + ';' );
 	try{
 		return { value: f( ctrl, controlOptions, context, model, milieu.array, milieu.item || model, milieu.index ) };
 	} catch( err ){
-		err.message = 'While evaluating: ' + milieu[ key ] + ' ' + err.message;
+		err.message = 'While evaluating: ' + value + ' ' + err.message;
 		console.error( err );
 	}
 	return null;
 }
 function valuateVisibility( ctrl, controlOptions, context, element, model, path, milieu ){
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-visible' );
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-visible'] );
 	if( res ){
 		element.style.visibility = res.value ? 'visible' : 'hidden';
 	}
 }
 function valuateDisplay( ctrl, controlOptions, context, element, model, path, milieu ){
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-display' );
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-display'] );
 	if( res ){
 		element.style.display = res.value ? 'inline' : 'none';
 	}
 }
 function valuateHTML( ctrl, controlOptions, context, element, model, path, milieu ){
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-html' );
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-html'] );
 	if( res ){
 		while (element.firstChild)
 			element.removeChild( element.firstChild );
@@ -99,7 +99,7 @@ function valuateHTML( ctrl, controlOptions, context, element, model, path, milie
 	}
 }
 function valuateStyle( ctrl, controlOptions, context, element, model, path, milieu ){
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-style' );
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-style'] );
 	if( res ){
 		var styles = res.value;
 		for( var key in styles ){
@@ -113,7 +113,7 @@ function valuateStyle( ctrl, controlOptions, context, element, model, path, mili
 	}
 }
 function valuateSelect( ctrl, controlOptions, context, element, model, path, milieu ){
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-select' );
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-select'] );
 	if( res ){
 		var selection = res.value;
 		if( selection )
@@ -123,7 +123,7 @@ function valuateSelect( ctrl, controlOptions, context, element, model, path, mil
 	}
 }
 function valuateAttribute( ctrl, controlOptions, context, element, model, path, milieu ){
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, 'data-attr' );
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr'] );
 	if( res ){
 		var attributes = res.value;
 		for( var key in attributes ){
@@ -142,16 +142,17 @@ function valuateMember( ctrl, element, milieu ){
 		element.checked = ctrl['hasIn'+capName]( element.value || element.name );
 	}
 }
-function valuateTap( ctrl, viewName, modelName, context, element, model, path, milieu ){
+function valuateTap( ctrl, viewName, modelName, controlOptions, context, element, model, path, milieu ){
 	if( checkContent( milieu, 'data-tap' ) ){
 		if( !milieu[ 'data-tap' ] || (milieu[ 'data-tap' ] === 'false') ) return;
 
-		var eventName = (milieu[ 'data-tap' ] === 'true') ? ('tapedOn' + viewName) : milieu[ 'data-tap' ];
 		new Hammer(element, {}).on("tap", function(ev) {
+			var eventName = (milieu[ 'data-tap' ] === 'true') ? ('tapedOn' + viewName) : milieu[ 'data-tap' ];
+			if( eventName.charAt(0) === '$' ) eventName = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, eventName ).value;
 			if (context && context.emit){
 				context.emit( eventName, viewName, modelName, element, ctrl, model, path, milieu);
 			}
-		});
+		} );
 	}
 }
 function readValidationRule( model, path, V ){
@@ -173,7 +174,7 @@ function createConfig( ctrl, controlOptions, viewName, modelName, appContext, mo
 		valuateAttribute( ctrl, controlOptions, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
 			valuateEventBinders( ctrl, viewName, appContext, element, model, path, milieu );
-			valuateTap( ctrl, viewName, modelName, appContext, element, model, path, milieu );
+			valuateTap( ctrl, viewName, modelName, controlOptions, appContext, element, model, path, milieu );
 		}
 		else if( milieu.clearElement && milieu.invalidElement && milieu.validElement ){
 			var vRule = readValidationRule( model, path, milieu.V );

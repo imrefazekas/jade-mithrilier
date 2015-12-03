@@ -189,6 +189,9 @@
 	viewModel.emailSelected = function(){
 		console.log('?????', arguments);
 	};
+	viewModel.clicked = function(){
+		console.log('Clicked!');
+	};
 
 	var self = new ViewModel();
 
@@ -1864,6 +1867,8 @@
 	};
 
 	var cleanString = function(string){
+		if(!string) return string;
+		if(!string.charAt) string = string + '';
 		return string && (string.charAt(0) === '\'' || string.charAt(0) === '\"') ? string.substring(1, string.length-1) : string;
 	};
 
@@ -1903,6 +1908,7 @@
 		return types.length > 0 ? JSON.parse( types[0] ) : null;
 	};
 
+	var referToPlain = '!';
 	var referToRoot = '$';
 	var itemReferer = 'item';
 	var rootReferer = 'ctrl[ modelName ]';
@@ -1962,13 +1968,16 @@
 				var self = this;
 
 				var realRef = '';
+				var plainJS = bindName.charAt( bindName.length-1 ) === referToPlain;
+				if( plainJS )
+					bindName = bindName.substring( 0, bindName.length-1 );
 				if( bindName.indexOf('context') === 0 ){
 					realRef = bindName;
 				} else {
 					var isReferringToRoot = bindName.charAt(0) === referToRoot;
 					var binder = isReferringToRoot ? bindName.substring(1) : bindName;
 					var reference = isReferringToRoot ? '' : (!inArray ? rootReferer : itemReferer) + '.';
-					realRef = reference + binder + '()';
+					realRef = reference + binder + (plainJS?'':'()');
 				}
 
 				var bindOperator = textElements.indexOf( node.name ) >= 0 ? 'textContent' : 'value';
@@ -1994,28 +2003,30 @@
 					self.visitMemberBinding( node, bindingPath, inArray, memberBinding );
 				}
 
-				var tapBinding = hasBindingAttribute( node, 'data-tap' );
+				var tapBinding = cleanString( getBindingAttribute( node, 'data-tap' ) );
 				var visibilityBinding = cleanString( getBindingAttribute( node, 'data-visible' ) );
 				var displayBinding = cleanString( getBindingAttribute( node, 'data-display' ) );
 				var attributeBinding = cleanString( getBindingAttribute( node, 'data-attr' ) );
 				var styleBinding = cleanString( getBindingAttribute( node, 'data-style' ) );
+				var selectBinding = cleanString( getBindingAttribute( node, 'data-select' ) );
 				var htmlBinding = cleanString( getBindingAttribute( node, 'data-html' ) );
 				var eventBindings = getEventBindings( node );
-
-				if( options.context && (arrayBinding || valueBinding || fieldBinding || memberBinding || tapBinding || visibilityBinding || displayBinding || attributeBinding || styleBinding || htmlBinding || eventBindings.length>0 ) ){
-					var itemSpec = inArray ? 'item: item, index: index,' : ' ';
+				if( options.context && (arrayBinding || valueBinding || fieldBinding || memberBinding || tapBinding || visibilityBinding || displayBinding || attributeBinding || styleBinding || selectBinding || htmlBinding || eventBindings.length>0 ) ){
+					var itemSpec = inArray ? 'array: array, item: item, index: index,' : ' ';
 					var visiSpec = visibilityBinding ? "\'data-visible\': "+ JSON.stringify( visibilityBinding ) +"," : '';
 					var displaySpec = displayBinding ? "\'data-display\': "+ JSON.stringify( displayBinding ) +"," : '';
 					var attSpec = attributeBinding ? "\'data-attr\': "+ JSON.stringify( attributeBinding ) +"," : '';
 					var styleSpec = styleBinding ? "\'data-style\': "+ JSON.stringify( styleBinding ) +"," : '';
+					var selectSpec = selectBinding ? "\'data-select\': "+ JSON.stringify( selectBinding ) +"," : '';
 					var htmlSpec = htmlBinding ? "\'data-html\': "+ JSON.stringify( htmlBinding ) +"," : '';
-					var tapSpec = tapBinding ? "\'data-tap\':\'true\'," : '';
+					var tapSpec = tapBinding ? "\'data-tap\': "+ JSON.stringify( tapBinding ) +"," : '';
+					//var tapSpec = tapBinding ? "\'data-tap\':\'true\'," : '';
 					var memberSpec = memberBinding ? "\'data-member\': "+ JSON.stringify( memberBinding ) +"," : '';
 					var eventBindingCode = '';
 					eventBindings.forEach( function(eventBinding){
 						eventBindingCode = eventBindingCode.concat( "\'" + eventBinding.name + "\': " + eventBinding.val + "," );
 					} );
-					self.code.push( 'config: createConfig( ctrl, controlOptions, viewName, modelName, context, ' + rootReferer + ', \''+ bindingPath +'\', { ' + itemSpec + memberSpec + visiSpec + displaySpec +  attSpec + styleSpec + htmlSpec + tapSpec + eventBindingCode + ' V: ctrl._validation, clearElement: context.clearElement, invalidElement: context.invalidElement, validElement: context.validElement } ),' );
+					self.code.push( 'config: createConfig( ctrl, controlOptions, viewName, modelName, context, ' + rootReferer + ', \''+ bindingPath +'\', { ' + itemSpec + memberSpec + visiSpec + displaySpec +  attSpec + styleSpec + selectSpec + htmlSpec + tapSpec + eventBindingCode + ' V: ctrl._validation, clearElement: context.clearElement, invalidElement: context.invalidElement, validElement: context.validElement } ),' );
 				}
 
 				var classes = [], value;
@@ -19020,11 +19031,19 @@
 		return this;
 	}
 
+	function removeClass(el, className) {
+		if (el.classList)
+			el.classList.remove(className);
+		else
+			el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+		return this;
+	}
+
 	function capitalizeFirstLetter(string) {
 		return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 
-	function valuateEventBinders(viewName, context, element, model, path, milieu) {
+	function valuateEventBinders(ctrl, viewName, context, element, model, path, milieu) {
 		var compute = context.stopComputationForEvents || !!milieu['data-compute'];
 		for (var key in milieu) {
 			if (key && key.indexOf('data-event-') === 0) {
@@ -19059,36 +19078,36 @@
 		return milieu[key];
 	}
 
-	function valuateContent(controlOptions, context, element, model, path, milieu, key) {
-		if (!milieu[key]) return null;
-		var f = new Function('$opts', '$context', '$root', '$item', '$index', 'return ' + milieu[key] + ';');
+	function valuateContent(ctrl, controlOptions, context, element, model, path, milieu, value) {
+		if (!value) return null;
+		var f = new Function('$ctrl', '$opts', '$context', '$root', '$array', '$item', '$index', 'return ' + value + ';');
 		try {
 			return {
-				value: f(controlOptions, context, model, milieu.item || model, milieu.index)
+				value: f(ctrl, controlOptions, context, model, milieu.array, milieu.item || model, milieu.index)
 			};
 		} catch (err) {
-			err.message = 'While evaluating: ' + milieu[key] + ' ' + err.message;
+			err.message = 'While evaluating: ' + value + ' ' + err.message;
 			console.error(err);
 		}
 		return null;
 	}
 
-	function valuateVisibility(controlOptions, context, element, model, path, milieu) {
-		var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-visible');
+	function valuateVisibility(ctrl, controlOptions, context, element, model, path, milieu) {
+		var res = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, milieu['data-visible']);
 		if (res) {
 			element.style.visibility = res.value ? 'visible' : 'hidden';
 		}
 	}
 
-	function valuateDisplay(controlOptions, context, element, model, path, milieu) {
-		var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-display');
+	function valuateDisplay(ctrl, controlOptions, context, element, model, path, milieu) {
+		var res = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, milieu['data-display']);
 		if (res) {
 			element.style.display = res.value ? 'inline' : 'none';
 		}
 	}
 
-	function valuateHTML(controlOptions, context, element, model, path, milieu) {
-		var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-html');
+	function valuateHTML(ctrl, controlOptions, context, element, model, path, milieu) {
+		var res = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, milieu['data-html']);
 		if (res) {
 			while (element.firstChild)
 				element.removeChild(element.firstChild);
@@ -19101,8 +19120,8 @@
 		}
 	}
 
-	function valuateStyle(controlOptions, context, element, model, path, milieu) {
-		var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-style');
+	function valuateStyle(ctrl, controlOptions, context, element, model, path, milieu) {
+		var res = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, milieu['data-style']);
 		if (res) {
 			var styles = res.value;
 			for (var key in styles) {
@@ -19116,8 +19135,19 @@
 		}
 	}
 
-	function valuateAttribute(controlOptions, context, element, model, path, milieu) {
-		var res = valuateContent(controlOptions, context, element, model, path, milieu, 'data-attr');
+	function valuateSelect(ctrl, controlOptions, context, element, model, path, milieu) {
+		var res = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, milieu['data-select']);
+		if (res) {
+			var selection = res.value;
+			if (selection)
+				addClass(element, 'selected');
+			else
+				removeClass(element, 'selected');
+		}
+	}
+
+	function valuateAttribute(ctrl, controlOptions, context, element, model, path, milieu) {
+		var res = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr']);
 		if (res) {
 			var attributes = res.value;
 			for (var key in attributes) {
@@ -19138,14 +19168,16 @@
 		}
 	}
 
-	function valuateTap(viewName, modelName, context, element, model, path, milieu) {
+	function valuateTap(ctrl, viewName, modelName, controlOptions, context, element, model, path, milieu) {
 		if (checkContent(milieu, 'data-tap')) {
-			if (milieu['data-tap'] === 'false') return;
+			if (!milieu['data-tap'] || (milieu['data-tap'] === 'false')) return;
 
-			var eventName = (milieu['data-tap'] === 'true') ? ('tapedOn' + viewName) : milieu['data-tap'];
 			new Hammer(element, {}).on("tap", function(ev) {
+				var eventName = (milieu['data-tap'] === 'true') ? ('tapedOn' + viewName) : milieu['data-tap'];
+				if (eventName.charAt(0) === '$') eventName = valuateContent(ctrl, controlOptions, context, element, model, path, milieu, eventName).value;
+				console.log('>>>>>>>>', eventName);
 				if (context && context.emit) {
-					context.emit(eventName, viewName, modelName, element, model, path, milieu);
+					context.emit(eventName, viewName, modelName, element, ctrl, model, path, milieu);
 				}
 			});
 		}
@@ -19168,18 +19200,19 @@
 	function createConfig(ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu) {
 		return function(element, isInitialized, context) {
 			valuateMember(ctrl, element, milieu);
-			valuateVisibility(controlOptions, appContext, element, model, path, milieu);
-			valuateDisplay(controlOptions, appContext, element, model, path, milieu);
-			valuateHTML(controlOptions, appContext, element, model, path, milieu);
-			valuateStyle(controlOptions, appContext, element, model, path, milieu);
-			valuateAttribute(controlOptions, appContext, element, model, path, milieu);
+			valuateVisibility(ctrl, controlOptions, appContext, element, model, path, milieu);
+			valuateDisplay(ctrl, controlOptions, appContext, element, model, path, milieu);
+			valuateHTML(ctrl, controlOptions, appContext, element, model, path, milieu);
+			valuateStyle(ctrl, controlOptions, appContext, element, model, path, milieu);
+			valuateSelect(ctrl, controlOptions, appContext, element, model, path, milieu);
+			valuateAttribute(ctrl, controlOptions, appContext, element, model, path, milieu);
 			if (!isInitialized) {
-				valuateEventBinders(viewName, appContext, element, model, path, milieu);
-				valuateTap(viewName, modelName, appContext, element, model, path, milieu);
+				valuateEventBinders(ctrl, viewName, appContext, element, model, path, milieu);
+				valuateTap(ctrl, viewName, modelName, controlOptions, appContext, element, model, path, milieu);
 			} else if (milieu.clearElement && milieu.invalidElement && milieu.validElement) {
 				var vRule = readValidationRule(model, path, milieu.V);
 				if (vRule.value && _.isFunction(vRule.value) && vRule.contraint) {
-					var inValid = v.validate(vRule.value(), vRule.contraint);
+					var inValid = v.validate(vRule.value(), vRule.contraint, model);
 					milieu.clearElement(element);
 					if (inValid)
 						milieu.invalidElement(element, inValid);
@@ -19310,6 +19343,7 @@
 						return [m("option", {
 							textContent: item(),
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'emails.$item', {
+								array: array,
 								item: item,
 								index: index,
 								'data-attr': "{ value: $item() }",
@@ -19338,6 +19372,7 @@
 							value: item.city(),
 							oninput: m.withAttr('value', item.city),
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses.city', {
+								array: array,
 								item: item,
 								index: index,
 								V: ctrl._validation,
@@ -19355,6 +19390,7 @@
 							value: item.street(),
 							oninput: m.withAttr('value', item.street),
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses.street', {
+								array: array,
 								item: item,
 								index: index,
 								V: ctrl._validation,
@@ -19373,6 +19409,7 @@
 							onclick: m.withAttr('checked', item.active),
 							checked: item.active(),
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses.active', {
+								array: array,
 								item: item,
 								index: index,
 								V: ctrl._validation,
@@ -19387,6 +19424,7 @@
 							"className": ""
 						}, []), m("text", {
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
+								array: array,
 								item: item,
 								index: index,
 								'data-visible': "$item.active()",
@@ -19401,6 +19439,7 @@
 							"className": ""
 						}, []), m("text", {
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
+								array: array,
 								item: item,
 								index: index,
 								'data-attr': "{ id: ($item.active() ? 'kortefa' : 'almafa') }",
@@ -19415,6 +19454,7 @@
 							"className": ""
 						}, []), m("text", {
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
+								array: array,
 								item: item,
 								index: index,
 								'data-style': "{ color: ($item.active() ? 'green' : 'red') }",
@@ -19429,6 +19469,7 @@
 							"className": ""
 						}, []), m("div", {
 							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
+								array: array,
 								item: item,
 								index: index,
 								'data-html': "$root.template()",
@@ -19439,8 +19480,41 @@
 							}),
 							"data-html": "$root.template()",
 							"className": ""
-						}, [])])];
-					}))]);
+						}, []), m("br", {
+							"className": ""
+						}, []), m("div", {
+							config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], 'addresses', {
+								array: array,
+								item: item,
+								index: index,
+								'data-tap': "$item.city()",
+								V: ctrl._validation,
+								clearElement: context.clearElement,
+								invalidElement: context.invalidElement,
+								validElement: context.validElement
+							}),
+							"id": "city-clicker",
+							"data-tap": "$item.city()",
+							"className": ""
+						}, [m("text", {
+							"className": ""
+						}, ["Event by city"])])])];
+					})), m("br", {
+						"className": ""
+					}, []), m("div", {
+						config: createConfig(ctrl, controlOptions, viewName, modelName, context, ctrl[modelName], '', {
+							'data-tap': "clicked",
+							V: ctrl._validation,
+							clearElement: context.clearElement,
+							invalidElement: context.invalidElement,
+							validElement: context.validElement
+						}),
+						"id": "clicker",
+						"data-tap": "clicked",
+						"className": ""
+					}, [m("text", {
+						"className": ""
+					}, ["Click me!"])])]);
 				}
 
 			};
