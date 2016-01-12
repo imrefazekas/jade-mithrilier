@@ -33,19 +33,19 @@ function valuateEventBinders( ctrl, viewName, modelName, context, element, model
 	var compute = context.stopComputationForEvents || !!milieu['data-compute'];
 	for( var key in milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
-			var eventName = key.substring( 'data-event-'.length );
-			var fnName = milieu[ key ];
 			if( !element.id ){
 				console.error( 'ID is required for event binding', element );
 				throw new Error('ID is required for event binding');
 			}
+			var eventName = key.substring( 'data-event-'.length );
+			var fnName = milieu[ key ] || (eventName+'On'+element.id);
 			var refName = eventName + 'For' + element.id; // viewName + (element.id||'') + 'At' + path;
 			if( !context[ refName ] ){
 				context[ refName ] = function(){
 					//setTimeout( function(){
 					if( compute )
 						m.startComputation();
-					context.emit( eventName, arguments[0], viewName, modelName, element, ctrl, model, path, milieu );
+					context.emit( fnName, arguments[0], viewName, modelName, element, ctrl, model, path, milieu );
 					if( compute )
 						m.endComputation();
 					//}, 0 );
