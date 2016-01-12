@@ -1,122 +1,3 @@
-/*
-var m = require('mithril');
-
-var mapObject = require('jade-mithrilier').mapObject();
-var Person = require('./models/Person');
-
-var _ = require('lodash');
-
-var modelName = 'Person';
-var context = {
-	emailSelected: function(){}
-};
-var mvc = {
-	model: Person.dataModel,
-	controller: mapObject( modelName, Person.validation ),
-	view: function(ctrl) {
-		return m("div", {
-			"className": "section"
-		}, [m("text", {
-			"className": "h6"
-		}, ["Sign up"]), m("br", {
-			"className": ""
-		}, []), m("input", {
-			value: ctrl[modelName].name(),
-			oninput: m.withAttr('value', ctrl[modelName].name),
-			"type": "text",
-			"id": "join_name",
-			"placeholder": "Your name",
-			"data-bind": "name",
-			"className": "c_ds_blue hN text-center"
-		}, []), m("br", {
-			"className": ""
-		}, []), m("input", {
-			value: ctrl[modelName].email(),
-			oninput: m.withAttr('value', ctrl[modelName].email),
-			"type": "text",
-			"id": "join_email",
-			"placeholder": "Your email address",
-			"data-bind": "email",
-			"className": "c_ds_blue hN text-center"
-		}, []), m("br", {
-			"className": ""
-		}, []), m("text", {
-			"className": ""
-		}, ["Accept?"]), m("input", {
-			value: ctrl[modelName].terms(),
-			onclick: m.withAttr('checked', ctrl[modelName].terms),
-			checked: ctrl[modelName].terms(),
-			"type": "checkbox",
-			"data-bind": "terms",
-			"className": "checkbox"
-		}, []), m("br", {
-			"className": ""
-		}, []), m("br", {
-			"className": ""
-		}, []), m("br", {
-			"className": ""
-		}, []), m("text", {
-			textContent: ctrl[modelName].name(),
-			"data-value": "name",
-			"className": ""
-		}, ["Addresses:"]), m("br", {
-			"className": ""
-		}, []), m("select", {
-			"data-each": "emails",
-			"data-event-change": "emailSelected",
-			"className": ""
-		}, ctrl[modelName].emails.map(function(item, index, array) {
-			return [m("option", {
-				textContent: item(),
-				"data-value": "$item",
-				"data-attr": "{ value: $item() }",
-				"className": ""
-			}, [])];
-		})), m("div", {
-			"data-each": "addresses",
-			"className": "row-section"
-		}, ctrl[modelName].addresses.map(function(item, index, array) {
-			return [m("div", {
-				"className": "row"
-			}, [m("input", {
-				value: item.city(),
-				oninput: m.withAttr('value', item.city),
-				"type": "text",
-				"placeholder": "Your city",
-				"data-bind": "city",
-				"className": "c_ds_blue hN text-center"
-			}, []), m("br", {
-				"className": ""
-			}, []), m("input", {
-				value: item.street(),
-				oninput: m.withAttr('value', item.street),
-				"type": "text",
-				"placeholder": "Your street",
-				"data-bind": "street",
-				"className": "c_ds_blue hN text-center"
-			}, []), m("br", {
-				"className": ""
-			}, []), m("input", {
-				value: item.active(),
-				onclick: m.withAttr('checked', item.active),
-				checked: item.active(),
-				"type": "checkbox",
-				"data-bind": "active",
-				"className": "checkbox"
-			}, []), m("br", {
-				"className": ""
-			}, []) ])];
-		}))]);
-	}
-};
-
-m.mount( document.getElementsByClassName('half1')[0], m.component(mvc, Person.dataModel) );
-m.mount( document.getElementsByClassName('half2')[0], m.component(mvc, Person.dataModel) );
-*/
-
-
-
-
 var Vanilla = require('./Vanilla');
 var EventEmitter = require('events').EventEmitter;
 var m = require('mithril');
@@ -183,9 +64,9 @@ self.on('initContentController', function( controller ){
 	first = false;
 });
 
-var context = require.context( './m/', true, /.(js)$/);
-context.keys().forEach( function(key){
-	var modelLoader = context(key);
+var extContext = require.context( './m/', true, /.(js)$/);
+extContext.keys().forEach( function(key){
+	var modelLoader = extContext(key);
 	var viewName = key.match(/\w+/)[0];
 	var mounters = document.querySelectorAll('[data-mount=\"' + viewName + '\"]');
 	Array.prototype.forEach.call(mounters, function(element, i){
