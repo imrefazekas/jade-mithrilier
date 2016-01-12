@@ -29,7 +29,7 @@ function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function valuateEventBinders( ctrl, viewName, context, element, model, path, milieu ){
+function valuateEventBinders( ctrl, viewName, modelName, context, element, model, path, milieu ){
 	var compute = context.stopComputationForEvents || !!milieu['data-compute'];
 	for( var key in milieu ){
 		if (key && key.indexOf('data-event-') === 0 ) {
@@ -175,7 +175,7 @@ function createConfig( ctrl, controlOptions, viewName, modelName, appContext, mo
 		valuateSelect( ctrl, controlOptions, appContext, element, model, path, milieu );
 		valuateAttribute( ctrl, controlOptions, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
-			valuateEventBinders( ctrl, viewName, appContext, element, model, path, milieu );
+			valuateEventBinders( ctrl, viewName, modelName, appContext, element, model, path, milieu );
 			valuateTap( ctrl, viewName, modelName, controlOptions, appContext, element, model, path, milieu );
 		}
 		else if( milieu.clearElement && milieu.invalidElement && milieu.validElement ){
