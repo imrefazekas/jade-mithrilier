@@ -1,21 +1,29 @@
 {
   "name": "jade-mithrilier-demo",
   "version": "1.0.0",
+  "mod-project-name": "jade-mithrilier-demo",
   "description": "jade-mithrilier-demo",
+  "keywords": [
+    "jade",
+    "compiler",
+    "mithril",
+    "view"
+  ],
   "author": {
     "name": "Imre Fazekas",
     "email": "imre.fazekas@icloud.com"
   },
+  "main": "lib/Main.js",
   "dependencies": {
-    "hammerjs": "^2.0.4",
+    "hammerjs": "^2.0.6",
     "jade": "~1",
-    "jade-mithrilier": "^0.11.0",
+    "jade-mithrilier": "^0.20.2",
     "js-beautify": "~1",
-    "lodash": "~3",
-    "mithril": "^0.2.0",
-    "mithril-mapper": "^1.4.2",
+    "lodash": "~4",
+    "mithril": "^0.2.2-rc.1",
+    "mithril-mapper": "^1.5.0",
     "uglify-js": "~2",
-    "vindication.js": "^3.5.0"
+    "vindication.js": "^3.6.6"
   },
   "devDependencies": {
     "connect": "^3.4.0",
@@ -24,10 +32,7 @@
     "serve-static": "^1.10.0",
     "webpack": "~1"
   },
-  "scripts": {
-    start: 'node Server.js',
-    build: 'gulp'
-  },
+  "scripts": {},
   "engines": {
     "node": ">=0.12.2"
   }

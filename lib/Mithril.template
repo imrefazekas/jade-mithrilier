@@ -150,7 +150,7 @@ function valuateTap( ctrl, viewName, modelName, controlOptions, context, element
 			if (context.emit){
 				if( compute )
 					m.startComputation();
-				context.emit( eventName, viewName, modelName, element, ctrl, model, path, milieu);
+				context.emit( eventName, ev, viewName, modelName, element, ctrl, model, path, milieu);
 				if( compute )
 					m.endComputation();
 			}
