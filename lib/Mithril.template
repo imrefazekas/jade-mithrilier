@@ -133,6 +133,20 @@ function valuateSelect( ctrl, controlOptions, context, element, model, path, mil
 			removeClass( element, 'selected' );
 	}
 }
+function valuateAttributeEnable( ctrl, controlOptions, context, element, model, path, milieu ){
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr-enable'] );
+	if( res ){
+		var attributes = res.value;
+		for( var key in attributes ){
+			if( key ){
+				if( attributes[ key ] )
+					element.setAttribute(key, attributes[ key ]);
+				else
+					element.removeAttribute(key);
+			}
+		}
+	}
+}
 function valuateAttribute( ctrl, controlOptions, context, element, model, path, milieu ){
 	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr'] );
 	if( res ){
@@ -142,7 +156,7 @@ function valuateAttribute( ctrl, controlOptions, context, element, model, path, 
 				if( key === 'class' )
 					addClass( element, attributes[ key ] );
 				else
-					element[ key ] = attributes[ key ];
+					element.setAttribute(key, attributes[ key ]);
 			}
 		}
 	}
@@ -189,6 +203,7 @@ function createConfig( ctrl, controlOptions, viewName, modelName, appContext, mo
 		valuateSelect( ctrl, controlOptions, appContext, element, model, path, milieu );
 		valuateEnable( ctrl, controlOptions, appContext, element, model, path, milieu );
 		valuateAttribute( ctrl, controlOptions, appContext, element, model, path, milieu );
+		valuateAttributeEnable( ctrl, controlOptions, appContext, element, model, path, milieu );
 		if( !isInitialized  ){
 			valuateEventBinders( ctrl, viewName, modelName, appContext, element, model, path, milieu );
 			valuateTap( ctrl, viewName, modelName, controlOptions, appContext, element, model, path, milieu );
