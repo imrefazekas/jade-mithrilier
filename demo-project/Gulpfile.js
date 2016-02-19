@@ -1,25 +1,29 @@
-var fs = require('fs');
-var gulp = require('gulp'),
-	webpack = require("webpack"),
-	gutil = require('gulp-util');
+'use strict'
 
-var mithrilier = require('jade-mithrilier');
+let fs = require('fs')
+let gulp = require('gulp'),
+	webpack = require('webpack'),
+	gutil = require('gulp-util')
 
-gulp.task('mithril', function( cb ){
-	var folder = './m/';
+let mithrilier = require('jade-mithrilier')
 
-	var jadeContent = fs.readFileSync( folder + 'Content.jade', { encoding: 'utf8' });
-	var mithrilView = mithrilier.generateMithrilJS( jadeContent );
-	fs.writeFileSync( folder + 'Content.js', mithrilView.trim() + '\n', { encoding: 'utf8' } );
+gulp.task('mithril', function ( cb ) {
+	let folder = './m/'
 
-	cb();
-});
+	let jadeContent = fs.readFileSync( folder + 'Content.jade', { encoding: 'utf8' })
+	mithrilier.generateMithrilJS( jadeContent, null, null, function (err, mithrilView) {
+		if ( err ) return cb(err)
 
-var config = {
+		fs.writeFileSync( folder + 'Content.js', mithrilView.trim() + '\n', { encoding: 'utf8' } )
+		cb()
+	} )
+})
+
+let config = {
 	cache: true,
 	entry: './main.js',
 	node: {
-		fs: "empty"
+		fs: 'empty'
 	},
 	output: {
 		path: './',
@@ -32,17 +36,17 @@ var config = {
 		]
 	},
 	plugins: [ ]
-};
-gulp.task('webpack', function( callback ) {
-	webpack( config, function(err, stats) {
-		if(err){
-			throw new global.gutil.PluginError("webpack", err);
+}
+gulp.task('webpack', function ( callback ) {
+	webpack( config, function (err, stats) {
+		if (err) {
+			throw new global.gutil.PluginError('webpack', err)
 		}
-		gutil.log("[webpack]", stats.toString({
+		gutil.log('[webpack]', stats.toString({
 			// output options
-		}));
-		callback();
-	});
-});
+		}))
+		callback()
+	})
+})
 
-gulp.task( 'default', [ 'mithril', 'webpack' ] );
+gulp.task( 'default', [ 'mithril', 'webpack' ] )
