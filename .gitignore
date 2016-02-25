@@ -6,3 +6,4 @@ doc/
 storage/
 web
 test
+*.temp.js
