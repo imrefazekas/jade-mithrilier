@@ -127,6 +127,10 @@ For a complete demo about features and services, see the folder [demo-project](h
 
 Note: That demo reads uses automation to ready all views you define and all referred models. You might find this as overdramatisation, but it is actually closer to a live project.
 
+Note: Please keep in mind, that JS and JADE(HTML) bridge we are dealing with, so try to define your embedded JS expressions escaped properly as the example below shows:
+
+	text(data-value="terms() ? \"Haloho\" : \"Hehehehe\"!")
+
 
 ## Binding markup
 

@@ -17,7 +17,7 @@
   "dependencies": {
     "hammerjs": "^2.0.6",
     "jade": "^1.11.0",
-    "jade-mithrilier": "^1.5.1",
+    "jade-mithrilier": "^1.6.1",
     "lodash": "~4",
     "mithril": "^0.2.2-rc.1",
     "mithril-mapper": "^1.7.1",
@@ -28,7 +28,7 @@
     "gulp": "^3.9.1",
     "gulp-util": "^3.0.7",
     "serve-static": "^1.10.2",
-    "webpack": "^1.12.13"
+    "webpack": "^1.12.14"
   },
   "scripts": {},
   "engines": {
