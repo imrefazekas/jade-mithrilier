@@ -8,13 +8,13 @@ JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhor
 
 [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library allowing you define your views in [JADE](http://jade-lang.com) templating engine.
 
-The aim is to have a toolset faciliting a design-focused orchestration levelling a very simple way to manage the MVC part of a webapp. You can define your
+The aim is to have a toolset facilitating a design-focused orchestration levelling a very simple way to manage the MVC part of a webapp. You can define your
 
 - views using [JADE](http://jade-lang.com) as template engine
 - models and validation rules with plain JS object
 
 and [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your app.
-To support the "multi-island scenario", you can assiciate multiple views to the same model or mount the same templates to different DOM parent as your needs encourage you to orchestrate.
+To support the "multi-island scenario", you can associate multiple views to the same model or mount the same templates to different DOM parent as your needs encourage you to orchestrate.
 
 Applications are not created in a vacuum, teams are working on it and design and code are evolving continuously urging the development team to handle representation freely.
 In other words, you should be encouraged to choose the template engine and the orchestration structure of yours, fitting the best your project. This solution wants to show a proven way.
