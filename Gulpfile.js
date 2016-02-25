@@ -14,4 +14,4 @@ gulp.task( 'mocha', function (callback) {
 	return gulp.src( './test/*.mocha.js' ).pipe( plugins.mocha({reporter: 'nyan'}) )
 } )
 
-gulp.task( 'default', [ 'lint'/*, 'mocha' */ ] )
+gulp.task( 'default', [ 'lint', 'mocha' ] )

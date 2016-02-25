@@ -65,7 +65,9 @@ function valuateContent ( ctrl, controlOptions, context, element, model, path, m
 	if ( !value ) return null
 	var f = new Function( '$ctrl', '$opts', '$context', '$root', '$array', '$item', '$index', 'return ' + value + '' )
 	try {
-		return { value: f( ctrl, controlOptions, context, model, milieu.array, milieu.item || model, milieu.index ) }
+		return {
+			value: f( ctrl, controlOptions, context, model, milieu.array, milieu.item || model, milieu.index )
+		}
 	} catch ( err ) {
 		err.message = 'While evaluating: ' + value + ' ' + err.message
 		console.error( err )
@@ -194,7 +196,10 @@ function readValidationRule ( model, path, V ) {
 		value = value[ qualifiers[i] ]
 		contraint = contraint[ qualifiers[i] ]
 	}
-	return { value: value, contraint: contraint }
+	return {
+		value: value,
+		contraint: contraint
+	}
 }
 function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu ) {
 	return function (element, isInitialized, context) {
