@@ -144,10 +144,16 @@ At mounting points:
 
 In template JADE:
 
+- data-bind: 2-way binding for a given attribute of the model
 - data-value: read-only binding for a given attribute of the model
+- data-valuate: dynamic binding for a given attribute of the model. Expression is evaluated and set to the 'value' attribute of the DOM element
 - data-each: maps array-typed attribute from the model
-- data-attr: attributes of a given DOM element are set dynamically by the expression defined by 'data-visible'
+- data-attr: attributes of a given DOM element are set dynamically by the expression defined by 'data-attr'
+- data-attr-enable: the given attributes are added or removed to/from the DOM element
 - data-visible: visibility of a given DOM element is determined dynamically by the expression defined by 'data-visible'
+- data-enable: the attached expression will determine if 'enabled' or 'disabled' class will be added to the DOM element
+- data-select: the attached expression will determine if 'selected' class will be added or removed to/from the DOM element
+- data-display: the boolean value of the expression attached determines if the given DOM element can be displayed (set in CSS rules) or not
 - data-style: style properties of a given DOM element are determined dynamically by the expression defined by 'data-style'
 - data-html: the content of a given DOM element is determined dynamically by the expression defined by 'data-html'
 - data-tap: tap handler. The element will catch tap events (via [HammerJS](http://hammerjs.github.io)) and generate 'tapped' events through the context
