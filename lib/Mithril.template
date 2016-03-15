@@ -74,6 +74,12 @@ function valuateContent ( ctrl, controlOptions, context, element, model, path, m
 	}
 	return null
 }
+function valuateValuation ( ctrl, controlOptions, context, element, model, path, milieu ) {
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-valuate'] )
+	if ( res ) {
+		element.style.value = _.isString( res.value ) ? res.value : JSON.stringify( res.value )
+	}
+}
 function valuateVisibility ( ctrl, controlOptions, context, element, model, path, milieu ) {
 	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-visible'] )
 	if ( res ) {
@@ -204,6 +210,7 @@ function readValidationRule ( model, path, V ) {
 function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu ) {
 	return function (element, isInitialized, context) {
 		valuateMember( ctrl, element, milieu )
+		valuateValuation( ctrl, controlOptions, appContext, element, model, path, milieu )
 		valuateVisibility( ctrl, controlOptions, appContext, element, model, path, milieu )
 		valuateDisplay( ctrl, controlOptions, appContext, element, model, path, milieu )
 		valuateHTML( ctrl, controlOptions, appContext, element, model, path, milieu )
