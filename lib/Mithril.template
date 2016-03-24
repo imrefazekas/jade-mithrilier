@@ -143,6 +143,21 @@ function valuateSelect ( ctrl, controlOptions, context, element, model, path, mi
 			removeClass( element, 'selected' )
 	}
 }
+function valuateClassEnable ( ctrl, controlOptions, context, element, model, path, milieu ) {
+	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-class-enable'] )
+	if ( res ) {
+		var attributes = res.value
+		for ( var key in attributes ) {
+			if ( key ) {
+				if ( attributes[ key ] )
+					addClass( element, key )
+				else
+					removeClass( element, key )
+			}
+		}
+	}
+}
+
 function valuateAttributeEnable ( ctrl, controlOptions, context, element, model, path, milieu ) {
 	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr-enable'] )
 	if ( res ) {
@@ -218,6 +233,7 @@ function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, m
 		valuateSelect( ctrl, controlOptions, appContext, element, model, path, milieu )
 		valuateEnable( ctrl, controlOptions, appContext, element, model, path, milieu )
 		valuateAttribute( ctrl, controlOptions, appContext, element, model, path, milieu )
+		valuateClassEnable( ctrl, controlOptions, appContext, element, model, path, milieu )
 		valuateAttributeEnable( ctrl, controlOptions, appContext, element, model, path, milieu )
 		if ( !isInitialized ) {
 			valuateEventBinders( ctrl, viewName, modelName, appContext, element, model, path, milieu )
