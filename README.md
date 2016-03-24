@@ -148,6 +148,7 @@ In template JADE:
 - data-value: read-only binding for a given attribute of the model
 - data-valuate: dynamic binding for a given attribute of the model. Expression is evaluated and set to the 'value' attribute of the DOM element
 - data-each: maps array-typed attribute from the model
+- data-prop: properties of a given DOM element are set dynamically by the expression defined by 'data-prop'
 - data-attr: attributes of a given DOM element are set dynamically by the expression defined by 'data-attr'
 - data-class-enable: the given class names are added or removed to/from the DOM element
 - data-attr-enable: the given attributes are added or removed to/from the DOM element
