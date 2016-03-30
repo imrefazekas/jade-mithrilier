@@ -42,7 +42,7 @@ The simplest way is to use plain and pure JS object as a CommonJS module requira
 Require function is provided on the client-side by [webpack](https://webpack.github.io) or [browserify](http://browserify.org).
 
 
-## Straight in into an example
+## Straight in to an example
 
 The following JADE file (Content.jade) defines a view of a Person:
 
@@ -125,9 +125,9 @@ For a complete demo about features and services, see the folder [demo-project](h
 - [Webpack](http://webpack.github.io) to have CommonJS and require function on the client-side
 - [gulp](http://gulpjs.com) delivering task execution
 
-Note: That demo reads uses automation to ready all views you define and all referred models. You might find this as overdramatisation, but it is actually closer to a live project.
+Note: That demo uses automation to make ready all views you define and all referred models. You might find this overdramatisation, but it is actually closer to a live project.
 
-Note: Please keep in mind, that JS and JADE(HTML) bridge we are dealing with, so try to define your embedded JS expressions escaped properly as the example below shows:
+Note: Please keep in mind, that it is JS and JADE(HTML) bridge we are dealing with, so try to define your embedded JS expressions escaped properly as the example below shows:
 
 	text(data-value="terms() ? \"Haloho\" : \"Hehehehe\"!")
 
@@ -144,9 +144,8 @@ At mounting points:
 
 In template JADE:
 
-- data-bind: 2-way binding for a given attribute of the model
-- data-value: read-only binding for a given attribute of the model
-- data-valuate: dynamic binding for a given attribute of the model. Expression is evaluated and set to the 'value' attribute of the DOM element
+- data-bind: 2-way binding for a given attribute of the model.
+- data-value: 1-way binding for a given attribute of the model. Good to present value from model.
 - data-each: maps array-typed attribute from the model
 - data-prop: properties of a given DOM element are set dynamically by the expression defined by 'data-prop'
 - data-attr: attributes of a given DOM element are set dynamically by the expression defined by 'data-attr'
@@ -165,7 +164,7 @@ In template JADE:
 
 (The MIT License)
 
-Copyright (c) 2015 Imre Fazekas
+Copyright (c) 2016 Imre Fazekas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

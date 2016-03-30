@@ -12,7 +12,15 @@ var v = require('vindication.js')
 var Hammer = require('hammerjs')
 delete Hammer.defaults.cssProps.userSelect
 
+function hasClass (el, className) {
+	if (el.classList)
+		return el.classList.contains(className)
+	else
+		return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className)
+}
 function addClass ( el, className ) {
+	if ( hasClass(el, className) ) return
+
 	if (el.classList)
 		el.classList.add(className)
 	else
@@ -58,9 +66,6 @@ function valuateEventBinders ( ctrl, viewName, modelName, context, element, mode
 		}
 	}
 }
-function checkContent ( milieu, key ) {
-	return milieu[ key ]
-}
 function valuateContent ( ctrl, controlOptions, context, element, model, path, milieu, value ) {
 	if ( !value ) return null
 	var f = new Function( '$ctrl', '$opts', '$context', '$root', '$array', '$item', '$index', 'return ' + value + '' )
@@ -74,142 +79,139 @@ function valuateContent ( ctrl, controlOptions, context, element, model, path, m
 	}
 	return null
 }
-function valuateValuation ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-valuate'] )
-	if ( res ) {
-		element.style.value = _.isString( res.value ) ? res.value : JSON.stringify( res.value )
-	}
-}
-function valuateVisibility ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-visible'] )
-	if ( res ) {
-		element.style.visibility = res.value ? 'visible' : 'hidden'
-	}
-}
-function valuateDisplay ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-display'] )
-	if ( res ) {
-		element.style.display = res.value ? 'inline' : 'none'
-	}
-}
-function valuateHTML ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-html'] )
-	if ( res ) {
-		while (element.firstChild)
-			element.removeChild( element.firstChild )
-		try {
-			element.insertAdjacentHTML('afterbegin', res.value)
-		} catch ( err ) {
-			err.message = 'While parsing html text: ' + res.value + ' ' + err.message
-			console.error( err )
+var attributeBindingFuctions = {
+	valuateVisibility: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-visible'] )
+		if ( res ) {
+			element.style.visibility = res.value ? 'visible' : 'hidden'
 		}
-	}
-}
-function valuateStyle ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-style'] )
-	if ( res ) {
-		var styles = res.value
-		for ( var key in styles ) {
-			if ( key ) {
-				if ( styles[ key ] )
-					element.style[ key ] = styles[ key ]
-				else
-					delete element.style[ key ]
+	},
+	valuateDisplay: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-display'] )
+		if ( res ) {
+			element.style.display = res.value ? 'inline' : 'none'
+		}
+	},
+	valuateHTML: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-html'] )
+		if ( res ) {
+			while (element.firstChild)
+				element.removeChild( element.firstChild )
+			try {
+				element.insertAdjacentHTML('afterbegin', res.value)
+			} catch ( err ) {
+				err.message = 'While parsing html text: ' + res.value + ' ' + err.message
+				console.error( err )
 			}
 		}
-	}
-}
-function valuateEnable ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-enable'] )
-	if ( res ) {
-		var enabling = res.value
-		if ( enabling ) {
-			removeClass( element, 'disabled' )
-			addClass( element, 'enabled' )
-		}
-		else {
-			removeClass( element, 'enabled' )
-			addClass( element, 'disabled' )
-		}
-	}
-}
-function valuateSelect ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-select'] )
-	if ( res ) {
-		var selection = res.value
-		if ( selection )
-			addClass( element, 'selected' )
-		else
-			removeClass( element, 'selected' )
-	}
-}
-function valuateClassEnable ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-class-enable'] )
-	if ( res ) {
-		var attributes = res.value
-		for ( var key in attributes ) {
-			if ( key ) {
-				if ( attributes[ key ] )
-					addClass( element, key )
-				else
-					removeClass( element, key )
+	},
+	valuateStyle: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-style'] )
+		if ( res ) {
+			var styles = res.value
+			for ( var key in styles ) {
+				if ( key ) {
+					if ( styles[ key ] )
+						element.style[ key ] = styles[ key ]
+					else
+						delete element.style[ key ]
+				}
 			}
 		}
-	}
-}
-
-function valuateAttributeEnable ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr-enable'] )
-	if ( res ) {
-		var attributes = res.value
-		for ( var key in attributes ) {
-			if ( key ) {
-				if ( attributes[ key ] )
-					element.setAttribute(key, attributes[ key ])
-				else
-					element.removeAttribute(key)
+	},
+	valuateEnable: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-enable'] )
+		if ( res ) {
+			var enabling = res.value
+			if ( enabling ) {
+				removeClass( element, 'disabled' )
+				addClass( element, 'enabled' )
+			}
+			else {
+				removeClass( element, 'enabled' )
+				addClass( element, 'disabled' )
 			}
 		}
-	}
-}
-function valuateAttribute ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr'] )
-	if ( res ) {
-		var attributes = res.value
-		for ( var key in attributes ) {
-			if ( key ) {
-				if ( key === 'class' )
-					addClass( element, attributes[ key ] )
-				else
-					element.setAttribute(key, attributes[ key ])
+	},
+	valuateSelect: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-select'] )
+		if ( res ) {
+			var selection = res.value
+			if ( selection )
+				addClass( element, 'selected' )
+			else
+				removeClass( element, 'selected' )
+		}
+	},
+	valuateClassEnable: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-class-enable'] )
+		if ( res ) {
+			var attributes = res.value
+			for ( var key in attributes ) {
+				if ( key ) {
+					if ( attributes[ key ] )
+						addClass( element, key )
+					else
+						removeClass( element, key )
+				}
 			}
 		}
-	}
-}
-function valuateProperty ( ctrl, controlOptions, context, element, model, path, milieu ) {
-	var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-prop'] )
-	if ( res ) {
-		var attributes = res.value
-		for ( var key in attributes ) {
-			if ( key ) {
-				element[key] = attributes[ key ]
+	},
+	valuateAttributeEnable: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr-enable'] )
+		if ( res ) {
+			var attributes = res.value
+			for ( var key in attributes ) {
+				if ( key ) {
+					if ( attributes[ key ] )
+						element.setAttribute(key, attributes[ key ])
+					else
+						element.removeAttribute(key)
+				}
+			}
+		}
+	},
+	valuateAttribute: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-attr'] )
+		if ( res ) {
+			var attributes = res.value
+			for ( var key in attributes ) {
+				if ( key ) {
+					if ( key === 'class' )
+						addClass( element, attributes[ key ] )
+					else
+						element.setAttribute(key, attributes[ key ])
+				}
+			}
+		}
+	},
+	valuateProperty: function ( ctrl, controlOptions, context, element, model, path, milieu ) {
+		var res = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, milieu['data-prop'] )
+		if ( res ) {
+			var attributes = res.value
+			for ( var key in attributes ) {
+				if ( key ) {
+					element[key] = attributes[ key ]
+				}
 			}
 		}
 	}
 }
 
 function valuateMember ( ctrl, element, milieu ) {
-	if ( checkContent( milieu, 'data-member' ) ) {
+	if ( milieu[ 'data-member' ] ) {
 		var capName = capitalizeFirstvarter( milieu[ 'data-member' ] )
 		element.checked = ctrl['hasIn' + capName]( element.value || element.name )
 	}
 }
 function valuateTap ( ctrl, viewName, modelName, controlOptions, context, element, model, path, milieu ) {
-	if ( context && checkContent( milieu, 'data-tap' ) ) {
+	if ( context && milieu[ 'data-tap' ] ) {
 		if ( !milieu[ 'data-tap' ] || (milieu[ 'data-tap' ] === 'false') ) return
 
 		var compute = context.stopComputationForEvents || !!milieu['data-compute']
 		new Hammer(element, {}).on('tap', function (ev) {
+			if ( hasClass(element, 'disabled') ) return
+
 			var eventName = (milieu[ 'data-tap' ] === 'true') ? ('tapedOn' + viewName) : milieu[ 'data-tap' ]
 			if ( eventName.charAt(0) === '$' ) eventName = valuateContent( ctrl, controlOptions, context, element, model, path, milieu, eventName ).value
 			if (context.emit) {
@@ -236,18 +238,10 @@ function readValidationRule ( model, path, V ) {
 }
 function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu ) {
 	return function (element, isInitialized, context) {
+		Object.keys(attributeBindingFuctions).forEach( function (fnName) {
+			attributeBindingFuctions[fnName]( ctrl, controlOptions, appContext, element, model, path, milieu )
+		})
 		valuateMember( ctrl, element, milieu )
-		valuateValuation( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateVisibility( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateDisplay( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateHTML( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateStyle( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateSelect( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateEnable( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateProperty( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateAttribute( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateClassEnable( ctrl, controlOptions, appContext, element, model, path, milieu )
-		valuateAttributeEnable( ctrl, controlOptions, appContext, element, model, path, milieu )
 		if ( !isInitialized ) {
 			valuateEventBinders( ctrl, viewName, modelName, appContext, element, model, path, milieu )
 			valuateTap( ctrl, viewName, modelName, controlOptions, appContext, element, model, path, milieu )
