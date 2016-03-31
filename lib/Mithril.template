@@ -226,14 +226,14 @@ function valuateTap ( ctrl, viewName, modelName, controlOptions, context, elemen
 }
 function readValidationRule ( model, path, V ) {
 	var qualifiers = path.split('.')
-	var value = model, contraint = V
-	for ( var i = 0; i < qualifiers.length && value[ qualifiers[i] ] && contraint[ qualifiers[i] ]; ++i ) {
+	var value = model, constraint = V
+	for ( var i = 0; i < qualifiers.length && value[ qualifiers[i] ] && constraint[ qualifiers[i] ]; ++i ) {
 		value = value[ qualifiers[i] ]
-		contraint = contraint[ qualifiers[i] ]
+		constraint = constraint[ qualifiers[i] ]
 	}
 	return {
 		value: value,
-		contraint: contraint
+		constraint: constraint && !constraint.ignoreUI ? constraint : null
 	}
 }
 function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu ) {
@@ -248,8 +248,8 @@ function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, m
 		}
 		else if ( milieu.clearElement && milieu.invalidElement && milieu.validElement ) {
 			var vRule = readValidationRule( model, path, milieu.V )
-			if ( vRule.value && _.isFunction(vRule.value) && vRule.contraint ) {
-				var inValid = v.validate( vRule.value(), vRule.contraint, model )
+			if ( vRule.value && _.isFunction(vRule.value) && vRule.constraint ) {
+				var inValid = v.validate( vRule.value(), vRule.constraint, model )
 				milieu.clearElement( element )
 				if ( inValid )
 					milieu.invalidElement( element, inValid )
