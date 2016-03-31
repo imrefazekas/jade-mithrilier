@@ -233,7 +233,7 @@ function readValidationRule ( model, path, V ) {
 	}
 	return {
 		value: value,
-		constraint: constraint && !constraint.ignoreUI ? constraint : null
+		constraint: constraint && !constraint._ignoreUI ? constraint : null
 	}
 }
 function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, model, path, milieu ) {
