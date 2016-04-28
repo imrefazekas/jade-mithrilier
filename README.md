@@ -1,32 +1,32 @@
-JADE-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhorie.github.io/mithril/) and [JADE](http://jade-lang.com).
+PUG-MITHRILIER - A design-focused abstraction layer over [Mithril](https://lhorie.github.io/mithril/) and [PUG](http://jade-lang.com).
 
-[![NPM](https://nodei.co/npm/jade-mithrilier.png)](https://nodei.co/npm/jade-mithrilier/)
+[![NPM](https://nodei.co/npm/pug-mithrilier.png)](https://nodei.co/npm/pug-mithrilier/)
 
 ========
 
-[![Join the chat at https://gitter.im/imrefazekas/jade-mithrilier](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/imrefazekas/jade-mithrilier?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/imrefazekas/pug-mithrilier](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/imrefazekas/pug-mithrilier?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) is a small utility library allowing you define your views in [JADE](http://jade-lang.com) templating engine.
+[pug-mithrilier](https://github.com/imrefazekas/pug-mithrilier) is a small utility library allowing you define your views in [PUG](http://jade-lang.com) templating engine.
 
-The aim is to have a toolset facilitating a design-focused orchestration levelling a very simple way to manage the MVC part of a webapp. You can define your
+The aim is to have a toolset facilitating a design-focused orchestration leveling a very simple way to manage the MVC part of a webapp. You can define your
 
-- views using [JADE](http://jade-lang.com) as template engine
+- views using [PUG](http://jade-lang.com) as template engine
 - models and validation rules with plain JS object
 
-and [jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your app.
+and [pug-mithrilier](https://github.com/imrefazekas/pug-mithrilier) will generate the necessary  [Mithril](https://lhorie.github.io/mithril/) components you can mount to your app.
 To support the "multi-island scenario", you can associate multiple views to the same model or mount the same templates to different DOM parent as your needs encourage you to orchestrate.
 
 Applications are not created in a vacuum, teams are working on it and design and code are evolving continuously urging the development team to handle representation freely.
 In other words, you should be encouraged to choose the template engine and the orchestration structure of yours, fitting the best your project. This solution wants to show a proven way.
 
 
-## Concept of JADE
+## Concept of PUG
 
 Some environment involving multiple teams urges the need of an independent view layer, where the functional and the presentation layer can be distinguished.
 The view layer must be freed from unnecessary technical decoration within the reach of everyone during the whole lifecycle of the app.
 Styles, layouts, UI components could be refined over the time not inducing any process on service-level.
 
-[JADE](http://jade-lang.com) is a very simple, yet power templating engine to be used.
+[PUG](http://jade-lang.com) is a very simple, yet power templating engine to be used.
 
 
 ## Concept of plain JS models
@@ -44,7 +44,7 @@ Require function is provided on the client-side by [webpack](https://webpack.git
 
 ## Straight in to an example
 
-The following JADE file (Content.jade) defines a view of a Person:
+The following PUG file (Content.pug) defines a view of a Person:
 
 ```jade
 .section
@@ -71,16 +71,16 @@ Let's reference it from an index.html file:
 A 'div' tag has been defined embedding the Person view defined earlier.
 The main.js serves as the functional entry point.
 
-Let's compile the JADE onto Mithril using gulp:
+Let's compile the PUG onto Mithril using gulp:
 
 ```javascript
-var mithrilier = require('jade-mithrilier');
+var mithrilier = require('pug-mithrilier');
 
 gulp.task('mithril', function( cb ){
 	var folder = './m/';
 
-	var jadeContent = fs.readFileSync( 'Content.jade', { encoding: 'utf8' });
-	var mithrilView = mithrilier.generateMithrilJS( jadeContent );
+	var pugContent = fs.readFileSync( 'Content.jade', { encoding: 'utf8' });
+	var mithrilView = mithrilier.generateMithrilJS( pugContent );
 	fs.writeFileSync( 'Content.js', mithrilView.trim() + '\n', { encoding: 'utf8' } );
 
 	cb();
@@ -121,20 +121,20 @@ Of course, you can orchestrate your project as you desire. You can
 - use same models for different views
 - use same view at multiple points in the page
 
-For a complete demo about features and services, see the folder [demo-project](https://github.com/imrefazekas/jade-mithrilier/tree/master/demo-project). It uses
+For a complete demo about features and services, see the folder [demo-project](https://github.com/imrefazekas/pug-mithrilier/tree/master/demo-project). It uses
 - [Webpack](http://webpack.github.io) to have CommonJS and require function on the client-side
 - [gulp](http://gulpjs.com) delivering task execution
 
 Note: That demo uses automation to make ready all views you define and all referred models. You might find this overdramatisation, but it is actually closer to a live project.
 
-Note: Please keep in mind, that it is JS and JADE(HTML) bridge we are dealing with, so try to define your embedded JS expressions escaped properly as the example below shows:
+Note: Please keep in mind, that it is JS and PUG(HTML) bridge we are dealing with, so try to define your embedded JS expressions escaped properly as the example below shows:
 
 	text(data-value="terms() ? \"Haloho\" : \"Hehehehe\"!")
 
 
 ## Binding markup
 
-[jade-mithrilier](https://github.com/imrefazekas/jade-mithrilier) handles the following binding markup:
+[pug-mithrilier](https://github.com/imrefazekas/pug-mithrilier) handles the following binding markup:
 
 At mounting points:
 
@@ -142,7 +142,7 @@ At mounting points:
 - data-model: when you share templates and models across DOM elements, this attributes helps to match the participants
 - data-opts: when the binding is depending on specific unique context. Some part of the view can be seen only on the 'control' page but cannot be seen on the 'view' page. So one view reused on different places and behaving accordingly. This environment can be reached by using the '$opts' variable in an expression of the tags listed below.
 
-In template JADE:
+In template PUG:
 
 - data-bind: 2-way binding for a given attribute of the model.
 - data-value: 1-way binding for a given attribute of the model. Good to present value from model.
@@ -186,4 +186,4 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Bugs
 
-See <https://github.com/imrefazekas/jade-mithrilier/issues>.
+See <https://github.com/imrefazekas/pug-mithrilier/issues>.
