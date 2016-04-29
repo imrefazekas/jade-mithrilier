@@ -1,6 +1,6 @@
 {
   "name": "pug-mithrilier",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "mod-project-name": "pug-mithrilier",
   "description": "pug-mithrilier",
   "keywords": [
@@ -27,7 +27,7 @@
   "dependencies": {
     "esformatter": "^0.9.3",
     "isa.js": "^1.6.1",
-    "pug": "^2.0.0-alpha6"
+    "jade": "^1.11.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
