@@ -5,13 +5,13 @@ let gulp = require('gulp'),
 	webpack = require('webpack'),
 	gutil = require('gulp-util')
 
-let mithrilier = require('jade-mithrilier')
+let mithrilier = require('pug-mithrilier')
 
 gulp.task('mithril', function ( cb ) {
 	let folder = './m/'
 
 	let jadeContent = fs.readFileSync( folder + 'Content.jade', { encoding: 'utf8' })
-	mithrilier.generateMithrilJS( jadeContent, null, null, function (err, mithrilView) {
+	mithrilier.generateMithrilJS( folder + 'Content.jade', jadeContent, null, null, function (err, mithrilView) {
 		if ( err ) return cb(err)
 
 		fs.writeFileSync( folder + 'Content.js', mithrilView.trim() + '\n', { encoding: 'utf8' } )
