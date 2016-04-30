@@ -1,22 +1,21 @@
 {
-  "name": "pug-mithrilier",
-  "version": "2.1.0",
-  "mod-project-name": "pug-mithrilier",
-  "description": "pug-mithrilier",
+  "name": "jade-mithrilier",
+  "version": "1.10.0",
+  "mod-project-name": "jade-mithrilier",
+  "description": "jade-mithrilier",
   "keywords": [
-    "pug",
     "jade",
     "compiler",
     "mithril",
     "view"
   ],
-  "homepage": "https://github.com/imrefazekas/pug-mithrilier",
+  "homepage": "https://github.com/imrefazekas/jade-mithrilier",
   "repository": {
     "type": "git",
-    "url": "git://github.com/imrefazekas/pug-mithrilier.git"
+    "url": "git://github.com/imrefazekas/jade-mithrilier.git"
   },
   "bugs": {
-    "url": "http://github.com/imrefazekas/pug-mithrilier/issues"
+    "url": "http://github.com/imrefazekas/jade-mithrilier/issues"
   },
   "author": {
     "name": "Imre Fazekas",
