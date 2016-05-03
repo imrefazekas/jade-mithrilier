@@ -28,6 +28,8 @@ function addClass ( el, className ) {
 	return this
 }
 function removeClass ( el, className ) {
+	if ( !hasClass(el, className) ) return
+
 	if (el.classList)
 		el.classList.remove(className)
 	else
@@ -246,11 +248,10 @@ function createConfig ( ctrl, controlOptions, viewName, modelName, appContext, m
 			valuateEventBinders( ctrl, viewName, modelName, appContext, element, model, path, milieu )
 			valuateTap( ctrl, viewName, modelName, controlOptions, appContext, element, model, path, milieu )
 		}
-		else if ( milieu.clearElement && milieu.invalidElement && milieu.validElement ) {
+		else if ( milieu.invalidElement && milieu.validElement ) {
 			var vRule = readValidationRule( model, path, milieu.V )
-			if ( vRule.value && _.isFunction(vRule.value) && vRule.constraint ) {
+			if ( vRule.value && vRule.constraint && _.isFunction(vRule.value) ) {
 				var inValid = v.validate( vRule.value(), vRule.constraint, model )
-				milieu.clearElement( element )
 				if ( inValid )
 					milieu.invalidElement( element, inValid )
 				else
@@ -279,7 +280,6 @@ module.exports = {
 		if ( context && context.emit )
 			context.emit( 'init' + viewName + 'ViewModel', model.dataModel )
 
-		// m.mount( element, { controller: controller, view: Component.view} )
 		m.mount( element, m.component(Component, model.dataModel) )
 	}
 }
